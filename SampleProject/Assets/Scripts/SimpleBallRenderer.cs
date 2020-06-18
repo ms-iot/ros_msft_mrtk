@@ -67,12 +67,17 @@ public class BallRenderer : ISpaceRenderer
             
         } else if (size > _ballCacheSize)
         {
-            GameObject[] newCache = new GameObject[size];
-            for (int i = 0; i < _ballCacheSize; i++)
+            // only rebuild the entire array if the new size exceeds the PHYSICAL size of the cache
+            if (size > _ballCache.Length)
             {
-                newCache[i] = _ballCache[i];
+                GameObject[] newCache = new GameObject[size];
+                for (int i = 0; i < _ballCacheSize; i++)
+                {
+                    newCache[i] = _ballCache[i];
+                }
+                _ballCache = newCache;
             }
-            _ballCache = newCache;
+            
             _ballCacheSize = size;
         }
     }
