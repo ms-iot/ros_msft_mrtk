@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
 {
-    private readonly int PREDICTED_LIDAR_RESOLUTION = 1024;
-    private readonly float RING_HEIGHT = .5f;
+    private readonly int PREDICTED_LIDAR_RESOLUTION = 1000;
+    private readonly float RING_HEIGHT = 1.5f;
 
     private GameObject _meshHolder;
     private MeshFilter _meshFilter;
@@ -27,16 +27,29 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
 
 
     // Invariant: _logicalVertsCount < (_verts.Length / 2)
+    // Invariant: _verts.Length is even
     // Invariant: _fakeVertFlags.Length == (_verts.Length / 2)
-    // Invariant: _triangles.Length == (_verts.Length / 2) * 6
+    // Invariant: _triangles.Length == (_verts.Length / 2) * 12
     private bool CheckInvariants()
     {
-        bool counts = _logicalVertsCount < (_verts.Length / 2);
+        bool _vertsState = _logicalVertsCount <= (_verts.Length / 2) && _verts.Length % 2 == 0;
+        if (!_vertsState)
+        {
+            Debug.LogError("RingMeshRenderer: counts");
+        }
         bool flagsLen = _fakeVertFlags.Length == (_verts.Length / 2);
-        bool trisLen = _triangles.Length == ((_verts.Length / 2) - 1) * 6;
-        
+        if (!flagsLen)
+        {
+            Debug.LogError("RingMeshRenderer: flagsLen");
+        }
+        bool trisLen = _triangles.Length == (_verts.Length / 2) * 12;
+        if (!trisLen)
+        {
+            Debug.LogError("RingMeshRenderer: trisLen");
+        }
 
-        bool output = counts && flagsLen && trisLen;
+
+        bool output = _vertsState && flagsLen && trisLen;
         if (!output)
         {
             Debug.LogError("Invariants failed to hold in RingMeshRenderer!");
@@ -53,18 +66,26 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
 
         ResizeMesh(lidarData.Length);
 
-        for (int vInd = 0, tInd = 0; vInd < _verts.Length; vInd += 2, tInd += 3)
+        for (int vInd = 0, tInd = 0; vInd < (_verts.Length); vInd += 2, tInd += 3)
         {
             // vInd = index for column in the ladder; 
             //   vInd+1 = second ring/top of column which
             //   should vary from vInd only by y displacement
-
-
             float rad = ((float)vInd / (float)lidarData.Length) * (2 * Mathf.PI);
             // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
-            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[vInd];
+            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[vInd / 2];
             _verts[vInd] = offset;
             _verts[vInd + 1] = offset + Vector3.up * RING_HEIGHT;
+        }
+
+        _mesh.vertices = _verts;
+        //debug
+        for (int i = 0; i < _verts.Length; i++)
+        {
+            if (_verts[i] == Vector3.zero)
+            {
+                Debug.LogWarning(i);
+            }
         }
     }
 
@@ -87,11 +108,15 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         _mesh.name = "Lidar Data";
         // Building a ladder-shaped mesh with two identical rings of vertices
         _verts = new Vector3[PREDICTED_LIDAR_RESOLUTION * 2];
-        _triangles = new int[PREDICTED_LIDAR_RESOLUTION * 6];
+        _logicalVertsCount = _verts.Length / 2;
+        _triangles = new int[PREDICTED_LIDAR_RESOLUTION * 12];
         _fakeVertFlags = new BitArray(PREDICTED_LIDAR_RESOLUTION, false);
         _mesh.vertices = _verts;
         _mesh.triangles = _triangles;
         _meshFilter.mesh = _mesh;
+
+        WeaveTriangles();
+        
     }
 
     private void ResizeMesh(int size)
@@ -132,26 +157,38 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         CheckInvariants();
 
         // edge case: start
-        _triangles[0] = 0;
+        _triangles[0] = 3;
         _triangles[1] = 1;
-        _triangles[2] = 3;
+        _triangles[2] = 0;
+        _triangles[3] = 0;
+        _triangles[4] = 1;
+        _triangles[5] = 3;
 
         // edge case: end
-        _triangles[3] = _verts.Length - 4;
-        _triangles[4] = _verts.Length - 1;
-        _triangles[5] = _verts.Length - 2;
-
-        // edge case: loop upper (where the ladder jumps from last vertice back to first)
         _triangles[6] = _verts.Length - 2;
         _triangles[7] = _verts.Length - 1;
-        _triangles[8] = 1;
+        _triangles[8] = _verts.Length - 4;
+        _triangles[9] = _verts.Length - 4;
+        _triangles[10] = _verts.Length - 1;
+        _triangles[11] = _verts.Length - 2;
+
+        // edge case: loop upper (where the ladder jumps from last vertice back to first)
+        _triangles[12] = 1;
+        _triangles[13] = _verts.Length - 1;
+        _triangles[14] = _verts.Length - 2;
+        _triangles[15] = _verts.Length - 2;
+        _triangles[16] = _verts.Length - 1;
+        _triangles[17] = 1;
 
         // edge case: loop lower
-        _triangles[9] = _verts.Length - 2;
-        _triangles[10] = 1;
-        _triangles[11] = 0;
-        
-        for (int tInd = 12, vInd = 2; tInd < _triangles.Length; tInd += 6, vInd += 2)
+        _triangles[18] = 0;
+        _triangles[19] = 1;
+        _triangles[20] = _verts.Length - 2;
+        _triangles[21] = _verts.Length - 2;
+        _triangles[22] = 1;
+        _triangles[23] = 0;
+
+        for (int tInd = 24, vInd = 2; tInd < _triangles.Length; tInd += 12, vInd += 2)
         {
             // tInd = index for the start of a triangle;
             //   tInd+1 = second vertice in triangle;
@@ -162,15 +199,25 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
             //   vInd+1 = second ring/top of column 
 
             // lower triangle
-            _triangles[tInd] = vInd - 2;
+            _triangles[tInd] = vInd;
             _triangles[tInd + 1] = vInd + 1;
-            _triangles[tInd + 2] = vInd;
+            _triangles[tInd + 2] = vInd - 2;
+            _triangles[tInd + 3] = vInd - 2;
+            _triangles[tInd + 4] = vInd + 1;
+            _triangles[tInd + 5] = vInd;
 
             // upper triangle
-            _triangles[tInd + 3] = vInd;
-            _triangles[tInd + 4] = vInd + 1;
-            _triangles[tInd + 5] = vInd + 3;
+            _triangles[tInd + 6] = vInd + 3;
+            _triangles[tInd + 7] = vInd + 1;
+            _triangles[tInd + 8] = vInd;
+            _triangles[tInd + 9] = vInd;
+            _triangles[tInd + 10] = vInd + 1;
+            _triangles[tInd + 11] = vInd + 3;
         }
+
+        _mesh.triangles = _triangles;
+
+        
     }
 
     
