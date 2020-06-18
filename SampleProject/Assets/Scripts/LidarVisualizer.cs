@@ -45,7 +45,7 @@ public class LidarVisualizer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _renderer = SpaceRenderer.GetSpaceRenderer(spaceRendererType);
+        _renderer = SpaceRenderer.GetSpaceRenderer(spaceRendererType, gameObject);
         _provider = LidarDataProvider.GetLidarDataProvider(lidarDataProviderType);
 
         

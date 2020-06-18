@@ -369,7 +369,7 @@ GameObject:
   - component: {fileID: 1098782710}
   - component: {fileID: 1098782709}
   m_Layer: 0
-  m_Name: SpaceRenderer
+  m_Name: Lidar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -383,7 +383,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1098782706}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.33356762, y: -0.6941037, z: 4.88774}
+  m_LocalPosition: {x: 0.33356762, y: 0.483, z: 4.88774}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -402,9 +402,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   renderCallsPerSecond: 15
-  lidarResolution: 1000
   lidarDataProviderType: 0
-  spaceRendererType: 0
+  spaceRendererType: 2
 --- !u!33 &1098782709
 MeshFilter:
   m_ObjectHideFlags: 0
