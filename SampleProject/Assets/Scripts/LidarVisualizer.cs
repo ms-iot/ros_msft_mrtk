@@ -6,9 +6,9 @@ using UnityEngine;
 
 
 /// <summary>
-/// This class visualizes the site that the simulated robot is currently operating within.
+/// This class visualizes the site that the simulated robot is currently operating within as seen by a lidar sensor.
 /// </summary>
-public class OperationSite : MonoBehaviour
+public class LidarVisualizer : MonoBehaviour
 {
     /// <summary>
     /// Times per second that this GameObject should query the lidar and render the results.
@@ -17,13 +17,6 @@ public class OperationSite : MonoBehaviour
     [Tooltip("The number of times per second that the lidar is queried and the visualization is updated.")]
     [Range(1, 30)]
     private int renderCallsPerSecond;
-
-    /// <summary>
-    /// The number of samples the lidar sensor takes.
-    /// </summary>
-    [SerializeField]
-    [Tooltip("Number of samples taken by the lidar.")]
-    private int lidarResolution = 100;
 
     /// <summary>
     /// An enum, used solely to acquire _provider using the factory class found in ILidarDataProvider.cs
@@ -48,12 +41,6 @@ public class OperationSite : MonoBehaviour
     private ISpaceRenderer _renderer;
 
 
-    
-
-    
-    
-    private float[] _lidarData;  // the format for lidardata may change depending on what I am given by ROS.net
-
 
     // Start is called before the first frame update
     void Start()
@@ -61,10 +48,8 @@ public class OperationSite : MonoBehaviour
         _renderer = SpaceRenderer.GetSpaceRenderer(spaceRendererType);
         _provider = LidarDataProvider.GetLidarDataProvider(lidarDataProviderType);
 
-        _lidarData = new float[lidarResolution];
         
         InvokeRepeating("RegenerateSite", 0f, 1f / renderCallsPerSecond);
-        //Invoke("RegenerateSite", 0f);
     }
 
     /// <summary>
@@ -73,7 +58,8 @@ public class OperationSite : MonoBehaviour
     private void RegenerateSite()
     {
         Debug.Log("Regenerating");
-        _provider.Query(_lidarData);
-        _renderer.Render(_lidarData, transform);
+        float[] data = _provider.Query();
+        _renderer.Render(data, transform);
+        
     }
 }

@@ -12,7 +12,7 @@ public class BallLineRenderer : BallRenderer
     public override void Render(float[] lidarData, Transform origin)
     {
         base.Render(lidarData, origin);
-        foreach(GameObject sphere in _frame)
+        foreach(GameObject sphere in _ballCache)
         {
             Debug.DrawLine(origin.position, sphere.transform.position, Color.blue);
         }

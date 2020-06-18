@@ -4,7 +4,8 @@ using UnityEngine;
 
 public interface ILidarDataProvider
 {
-    void Query(float[] dst);  // probably will become async in future, not sure what the ROS framework entails
+    // probably will become async in future, not sure what the ROS framework entails
+    float[] Query();  
 }
 
 public enum LidarDataProviderClass

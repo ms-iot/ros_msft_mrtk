@@ -13,7 +13,8 @@ public class BallRenderer : ISpaceRenderer
     /// Currently Resource.Loaded from root of resources folder
     /// </summary>
     protected GameObject _ballPrefab;
-    protected GameObject[] _frame;
+    protected GameObject[] _ballCache;
+    protected int _ballCacheSize;
 
     public BallRenderer()
     {
@@ -28,29 +29,51 @@ public class BallRenderer : ISpaceRenderer
     
     public virtual void Render(float[] lidarData, Transform origin)
     {
-        if (_frame == null)
+        if (_ballCache == null)
         {
-            _frame = new GameObject[lidarData.Length];
-        }
-        else if (lidarData.Length != _frame.Length)
-        {
-            Debug.LogError("The passed in set of data to render varied from frame to frame... should this be supported?");
-            return;
+            _ballCache = new GameObject[lidarData.Length];
+            _ballCacheSize = lidarData.Length;
         }
 
-        // delete the old objects from the previous frame
-        foreach (GameObject g in _frame)
-        {
-            GameObject.Destroy(g);
-        }
+        ResizeCache(lidarData.Length);
 
-        for (int i = 0; i < lidarData.Length; i++)
+        for (int i = 0; i < _ballCacheSize; i++)
         {
-            GameObject ball = GameObject.Instantiate(_ballPrefab, origin);
-            _frame[i] = ball;
+            if (_ballCache[i] == null)
+            {
+                GameObject ball = GameObject.Instantiate(_ballPrefab, origin);
+                _ballCache[i] = ball;
+            }
             float rad = ((float)i / (float)lidarData.Length) * (2 * Mathf.PI);
             Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[i];  // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
-            ball.transform.localPosition = offset;
+            // wake up/activate the object if it wasn't used last frame
+            _ballCache[i].SetActive(true);
+            _ballCache[i].transform.localPosition = offset;
+        }
+    }
+
+    private void ResizeCache(int size)
+    {
+        if (size < _ballCacheSize)
+        {
+            // If the cache needs to be smaller, just update the size 
+            // the slots of _ballCache after size are now logically 'garbage'
+            // and should not be rendered
+            for (int i = size; i < _ballCacheSize; i++)
+            {
+                _ballCache[i].SetActive(false);
+            }
+            _ballCacheSize = size;
+            
+        } else if (size > _ballCacheSize)
+        {
+            GameObject[] newCache = new GameObject[size];
+            for (int i = 0; i < _ballCacheSize; i++)
+            {
+                newCache[i] = _ballCache[i];
+            }
+            _ballCache = newCache;
+            _ballCacheSize = size;
         }
     }
 }
