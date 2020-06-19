@@ -26,6 +26,7 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
     private int[] _triangles;
 
 
+
     // Invariant: _logicalVertsCount < (_verts.Length / 2)
     // Invariant: _verts.Length is even
     // Invariant: _fakeVertFlags.Length == (_verts.Length / 2)
@@ -59,34 +60,29 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
 
     public void Render(float[] lidarData, Transform origin)
     {
+
         if (_meshHolder == null)
         {
             Init(origin);
         }
 
         ResizeMesh(lidarData.Length);
-
-        for (int vInd = 0, tInd = 0; vInd < (_verts.Length); vInd += 2, tInd += 3)
+        for (int vInd = 0, tInd = 0; vInd < _verts.Length; vInd += 2, tInd += 3)
         {
             // vInd = index for column in the ladder; 
             //   vInd+1 = second ring/top of column which
             //   should vary from vInd only by y displacement
-            float rad = ((float)vInd / (float)lidarData.Length) * (2 * Mathf.PI);
+            float rad = ((float)(vInd/2) / (float)lidarData.Length) * (2 * Mathf.PI);
             // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
             Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[vInd / 2];
             _verts[vInd] = offset;
             _verts[vInd + 1] = offset + Vector3.up * RING_HEIGHT;
+
         }
 
+        _mesh.RecalculateBounds();
+
         _mesh.vertices = _verts;
-        //debug
-        for (int i = 0; i < _verts.Length; i++)
-        {
-            if (_verts[i] == Vector3.zero)
-            {
-                Debug.LogWarning(i);
-            }
-        }
     }
 
     private void Init(Transform origin)
@@ -109,11 +105,18 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         // Building a ladder-shaped mesh with two identical rings of vertices
         _verts = new Vector3[PREDICTED_LIDAR_RESOLUTION * 2];
         _logicalVertsCount = _verts.Length / 2;
+        // 3 ints per triangle * 2 (double-sided triangle viewable from both sides)
+        //   * 2 triangles per lidar reading (because circular)
+        // - O - O
+        // / | / |
+        // - O - O
         _triangles = new int[PREDICTED_LIDAR_RESOLUTION * 12];
         _fakeVertFlags = new BitArray(PREDICTED_LIDAR_RESOLUTION, false);
         _mesh.vertices = _verts;
         _mesh.triangles = _triangles;
         _meshFilter.mesh = _mesh;
+
+
 
         WeaveTriangles();
         
@@ -194,7 +197,7 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
             //   tInd+1 = second vertice in triangle;
             //   tInd+2 = third vertice in triangle;
             //   triangle vertice ordering must be clockwise 
-            //   for the polygon to be seen
+            //   with respects to the camera for the polygon to be seen
             // vInd = index for column in the ladder; 
             //   vInd+1 = second ring/top of column 
 

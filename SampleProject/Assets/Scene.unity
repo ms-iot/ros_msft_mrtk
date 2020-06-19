@@ -401,7 +401,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fc1532d30c56f742a8b3d15c8fc5865, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderCallsPerSecond: 15
+  renderCallsPerSecond: 1
   lidarDataProviderType: 0
   spaceRendererType: 2
 --- !u!33 &1098782709
