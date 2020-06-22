@@ -35,23 +35,25 @@ public class ROS2Listener : MonoBehaviour
             SetCurrentDirectoryA(p);
 
             RCLRet ret = RCLdotnet.Init ();
-            if (ret != RCLRet.Ok)            {
-                Debug.Log("RCL Init = " + ret.ToString());
+            if (ret == RCLRet.Ok)
+            {
+                Debug.Log("ROS is using " + RCLdotnet.GetRMWIdentifier());
+            }
+            else
+            {
                 Debug.Log("RCL InitE = " + RCLdotnet.GetErrorString());
             }
+
+            node = RCLdotnet.CreateNode ("listener");
+
+            chatter_sub = node.CreateSubscription<std_msgs.msg.String> (
+                "chatter", msg => Debug.Log("I heard: [" + msg.Data + "]"));        
+
         }
-        catch (ROS2.Utils.UnsatisfiedLinkError le)
+        catch (Exception e)
         {
-            Debug.Log(le.ToString());
+            Debug.Log(e.ToString());
         }
-
-        Debug.Log("ROS is using " + RCLdotnet.GetRMWIdentifier());
-
-        node = RCLdotnet.CreateNode ("listener");
-
-        chatter_sub = node.CreateSubscription<std_msgs.msg.String> (
-            "chatter", msg => Debug.Log("I heard: [" + msg.Data + "]"));        
-
         SetCurrentDirectoryA(sb.ToString());
     }
 
