@@ -46,7 +46,7 @@ public class LidarVisualizer : MonoBehaviour
     void Start()
     {
         _renderer = SpaceRenderer.GetSpaceRenderer(spaceRendererType, gameObject);
-        _provider = LidarDataProvider.GetLidarDataProvider(lidarDataProviderType);
+        _provider = LidarDataProvider.GetLidarDataProvider(lidarDataProviderType, gameObject);
 
         
         InvokeRepeating("RegenerateSite", 0f, 1f / renderCallsPerSecond);
@@ -57,7 +57,6 @@ public class LidarVisualizer : MonoBehaviour
     /// </summary>
     private void RegenerateSite()
     {
-        Debug.Log("Regenerating");
         float[] data = _provider.Query();
         _renderer.Render(data, transform);
         
