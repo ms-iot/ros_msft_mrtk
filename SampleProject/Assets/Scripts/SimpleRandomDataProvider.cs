@@ -8,7 +8,8 @@ using UnityEngine;
 /// </summary>
 public class SimpleRandomDataProvider : ILidarDataProvider
 {
-    protected float[] _reserved;  // only allocate one array for this implementation
+    // only allocate one array for this implementation
+    protected float[] _reserved;  
 
     public SimpleRandomDataProvider()
     {
@@ -22,6 +23,6 @@ public class SimpleRandomDataProvider : ILidarDataProvider
         {
             _reserved[i] = Random.Range(8f, 10f);
         }
-        return _reserved;  // TODO is it safe to expose _reserved?
+        return _reserved;
     }
 }

@@ -17,13 +17,34 @@ public class ROS2Listener : MonoBehaviour
       [DllImport ("kernel32.dll", EntryPoint = "GetCurrentDirectoryA", SetLastError = true, ExactSpelling = true)]
       private static extern bool GetCurrentDirectoryA(uint nBufferLength, StringBuilder lpBuffer);
 
-    private INode node = null; 
+    private INode node = null;
     private ISubscription<std_msgs.msg.String> chatter_sub;
 
-    // Start is called before the first frame update
-    void Start()
+    private static ROS2Listener _instance;
+
+    public static ROS2Listener instance { get {
+            _instance = _instance ?? Init();
+            return _instance;
+        } }
+
+    /// <summary>
+    /// Called only by the instance singleton getter when the instance has not yet been initialized.
+    /// </summary>
+    /// <returns>The instance of this singleton class</returns>
+    private static ROS2Listener Init()
     {
+        // attempt to find an instance already in the scene
+        _instance = FindObjectOfType<ROS2Listener>();
+        if (_instance != null)
+        {
+            Debug.LogWarning("ROS2Listener.Init() is being called even when the singleton instance already exists!");
+            return _instance;
+        }
+
         Debug.Log("ROS is Awake");
+
+        GameObject obj = new GameObject("ROS2Listener");
+        _instance = obj.AddComponent<ROS2Listener>();
 
         var t = typeof(RCLdotnet).Assembly.Location;
         Debug.Log("RCLdotnet location = " + t);
@@ -34,7 +55,7 @@ public class ROS2Listener : MonoBehaviour
         {
             SetCurrentDirectoryA(p);
 
-            RCLRet ret = RCLdotnet.Init ();
+            RCLRet ret = RCLdotnet.Init();
             if (ret == RCLRet.Ok)
             {
                 Debug.Log("ROS is using " + RCLdotnet.GetRMWIdentifier());
@@ -44,17 +65,17 @@ public class ROS2Listener : MonoBehaviour
                 Debug.Log("RCL InitE = " + RCLdotnet.GetErrorString());
             }
 
-            node = RCLdotnet.CreateNode ("listener");
+            _instance.node = RCLdotnet.CreateNode("listener");
 
-            chatter_sub = node.CreateSubscription<std_msgs.msg.String> (
-                "chatter", msg => Debug.Log("I heard: [" + msg.Data + "]"));        
-
+            _instance.chatter_sub = _instance.node.CreateSubscription<std_msgs.msg.String>(
+                "chatter", msg => Debug.Log("I heard: [" + msg.Data + "]"));
         }
         catch (Exception e)
         {
             Debug.Log(e.ToString());
         }
         SetCurrentDirectoryA(sb.ToString());
+        return _instance;
     }
 
     // Update is called once per frame
@@ -65,4 +86,4 @@ public class ROS2Listener : MonoBehaviour
             RCLdotnet.SpinOnce(node, 0);
         }
     }
-}
+} 

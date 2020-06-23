@@ -67,7 +67,7 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         }
 
         ResizeMesh(lidarData.Length);
-        for (int vInd = 0, tInd = 0; vInd < _verts.Length; vInd += 2, tInd += 3)
+        for (int vInd = 0; vInd < _verts.Length; vInd += 2)
         {
             // vInd = index for column in the ladder; 
             //   vInd+1 = second ring/top of column which
