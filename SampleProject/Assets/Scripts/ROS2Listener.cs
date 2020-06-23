@@ -17,8 +17,10 @@ public class ROS2Listener : MonoBehaviour
       [DllImport ("kernel32.dll", EntryPoint = "GetCurrentDirectoryA", SetLastError = true, ExactSpelling = true)]
       private static extern bool GetCurrentDirectoryA(uint nBufferLength, StringBuilder lpBuffer);
 
-    private INode node = null;
+    public INode node = null;
     private ISubscription<std_msgs.msg.String> chatter_sub;
+    private Dictionary<String, ISubscriptionBase> _singletonSubs;
+
 
     private static ROS2Listener _instance;
 
@@ -67,14 +69,16 @@ public class ROS2Listener : MonoBehaviour
 
             _instance.node = RCLdotnet.CreateNode("listener");
 
-            _instance.chatter_sub = _instance.node.CreateSubscription<std_msgs.msg.String>(
-                "chatter", msg => Debug.Log("I heard: [" + msg.Data + "]"));
+            _instance._singletonSubs = new Dictionary<string, ISubscriptionBase>();
         }
         catch (Exception e)
         {
+            Destroy(_instance.gameObject);
+            _instance = null;
             Debug.Log(e.ToString());
         }
         SetCurrentDirectoryA(sb.ToString());
+        DontDestroyOnLoad(_instance);
         return _instance;
     }
 
