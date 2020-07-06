@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 
 
 public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
 {
-    private readonly int PREDICTED_LIDAR_RESOLUTION = 1000;
+    private readonly int PREDICTED_LIDAR_RESOLUTION = 360;
     private readonly float RING_HEIGHT = 1.5f;
 
     private GameObject _meshHolder;
@@ -22,7 +23,6 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
     /// 0 - 2 - 4 - 6 - 8 ....
     private Vector3[] _verts;
     private int _logicalVertsCount;
-    private BitArray _fakeVertFlags;
     private int[] _triangles;
 
 
@@ -38,19 +38,13 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         {
             Debug.LogError("RingMeshRenderer: counts");
         }
-        bool flagsLen = _fakeVertFlags.Length == (_verts.Length / 2);
-        if (!flagsLen)
-        {
-            Debug.LogError("RingMeshRenderer: flagsLen");
-        }
         bool trisLen = _triangles.Length == (_verts.Length / 2) * 12;
         if (!trisLen)
         {
             Debug.LogError("RingMeshRenderer: trisLen");
         }
 
-
-        bool output = _vertsState && flagsLen && trisLen;
+        bool output = _vertsState && trisLen;
         if (!output)
         {
             Debug.LogError("Invariants failed to hold in RingMeshRenderer!");
@@ -60,13 +54,12 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
 
     public void Render(float[] lidarData, Transform origin)
     {
-
         if (_meshHolder == null)
         {
             Init(origin);
         }
 
-        ResizeMesh(lidarData.Length);
+        HandleInfinity(ref lidarData);
         for (int vInd = 0; vInd < _verts.Length; vInd += 2)
         {
             // vInd = index for column in the ladder; 
@@ -104,14 +97,13 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         _mesh.name = "Lidar Data";
         // Building a ladder-shaped mesh with two identical rings of vertices
         _verts = new Vector3[PREDICTED_LIDAR_RESOLUTION * 2];
-        _logicalVertsCount = _verts.Length / 2;
+        _logicalVertsCount = PREDICTED_LIDAR_RESOLUTION;
         // 3 ints per triangle * 2 (double-sided triangle viewable from both sides)
         //   * 2 triangles per lidar reading (because circular)
         // - O - O
         // / | / |
         // - O - O
         _triangles = new int[PREDICTED_LIDAR_RESOLUTION * 12];
-        _fakeVertFlags = new BitArray(PREDICTED_LIDAR_RESOLUTION, false);
         _mesh.vertices = _verts;
         _mesh.triangles = _triangles;
         _meshFilter.mesh = _mesh;
@@ -122,37 +114,95 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         
     }
 
-    private void ResizeMesh(int size)
+    private void HandleInfinity(ref float[] lidarData)
     {
-        CheckInvariants();
-        return;
-        /*
-        if (size < _logicalVertsCount)
+        //////////////////////////////////////////////////
+        /// Edge Case - Loop needs lerping
         {
-            int fakeVerts = (_verts.Length / 2) - size;
-            for (int i = size; i < _ballCacheSize; i++)
+            int startInd = lidarData.Length - 1;
+            int endInd = 0;
+            int gap = 0;
+            if (float.IsInfinity(lidarData[0]))
             {
-                _ballCache[i].SetActive(false);
-            }
-            _ballCacheSize = size;
-
-        }
-        else if (size > _logicalVertsCount)
-        {
-            // only rebuild the entire array if the new size exceeds the PHYSICAL size of the cache
-            if (size > _ballCache.Length)
-            {
-                GameObject[] newCache = new GameObject[size];
-                for (int i = 0; i < _ballCacheSize; i++)
+                gap++;
+                for (int i = 1; i < lidarData.Length; i++)
                 {
-                    newCache[i] = _ballCache[i];
+                    if (!float.IsInfinity(lidarData[i]))
+                    {
+                        gap += i - 1;
+                        endInd = i;
+                        break;
+                    }
                 }
-                _ballCache = newCache;
+                for (int i = 1; i < lidarData.Length; i++)
+                {
+                    if (!float.IsInfinity(lidarData[lidarData.Length - i]))
+                    {
+                        gap += i - 1;
+                        startInd = lidarData.Length - i;
+                        break;
+                    }
+                }
             }
-
-            _ballCacheSize = size;
-        } */
-        CheckInvariants();
+            else if (float.IsInfinity(lidarData[lidarData.Length - 1]))
+            {
+                gap++;
+                for (int i = 1; i < lidarData.Length; i++)
+                {
+                    if (!float.IsInfinity(lidarData[lidarData.Length - i]))
+                    {
+                        gap += i - 2;
+                        startInd = lidarData.Length - i;
+                        break;
+                    }
+                }
+            }
+            if (gap > 0)
+            {
+                float ctr = 1f;
+                for (int i = startInd + 1; i < startInd + gap + 1; i++)
+                {
+                    int boundedInd = i % lidarData.Length;
+                    float frac = ctr / (1f + (float)gap);
+                    lidarData[boundedInd] = Mathf.Lerp(lidarData[startInd],
+                        lidarData[endInd], frac);
+                    ctr++;
+                }
+            }
+        }
+        /// End Edge Case - Loop needs lerping
+        //////////////////////////////////////////////////
+        /// Base Case - Center portion of array
+        {
+            for (int i = 1; i < lidarData.Length - 1; i++)
+            {
+                if (float.IsInfinity(lidarData[i]))
+                {
+                    int startInd = i - 1;
+                    int endInd = i;
+                    int gap = 1;
+                    for (int j = 1; i + j < lidarData.Length; j++)
+                    {
+                        if (!float.IsInfinity(lidarData[i + j]))
+                        {
+                            gap = j;
+                            endInd = i + j;
+                            break;
+                        }
+                    }
+                    float ctr = 1f;
+                    for (int j = startInd + 1; j < endInd; j++)
+                    {
+                        float frac = ctr / (1f + (float)gap);
+                        lidarData[j] = Mathf.Lerp(lidarData[startInd],
+                            lidarData[endInd], frac);
+                        ctr++;
+                    }
+                }
+            }
+        }
+        /// End Base Case
+        //////////////////////////////////////////////////
     }
 
     private void WeaveTriangles()

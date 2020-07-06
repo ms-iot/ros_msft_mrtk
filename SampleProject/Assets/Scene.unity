@@ -402,7 +402,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   renderCallsPerSecond: 30
-  lidarDataProviderType: 0
+  lidarDataProviderType: 1
   spaceRendererType: 2
 --- !u!33 &1098782709
 MeshFilter:
