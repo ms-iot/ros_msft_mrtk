@@ -45,7 +45,8 @@ public class BallRenderer : ISpaceRenderer
                 _ballCache[i] = ball;
             }
             float rad = ((float)i / (float)lidarData.Length) * (2 * Mathf.PI);
-            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[i];  // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
+            // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
+            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[i];  
             // wake up/activate the object if it wasn't used last frame
             _ballCache[i].SetActive(true);
             _ballCache[i].transform.localPosition = offset;

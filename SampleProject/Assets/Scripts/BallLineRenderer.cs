@@ -12,9 +12,9 @@ public class BallLineRenderer : BallRenderer
     public override void Render(float[] lidarData, Transform origin)
     {
         base.Render(lidarData, origin);
-        foreach(GameObject sphere in _ballCache)
+        for (int i = 0; i < _ballCacheSize; i++)
         {
-            Debug.DrawLine(origin.position, sphere.transform.position, Color.blue);
+            Debug.DrawLine(origin.position, _ballCache[i].transform.position, Color.blue, 1f);
         }
     }
 }

@@ -10,17 +10,20 @@ public interface ILidarDataProvider
 
 public enum LidarDataProviderClass
 {
-    SIMPLE_RANDOM
+    SIMPLE_RANDOM,
+    ROS
 }
 
 public static class LidarDataProvider
 {
-    public static ILidarDataProvider GetLidarDataProvider(LidarDataProviderClass ldpc)
+    public static ILidarDataProvider GetLidarDataProvider(LidarDataProviderClass ldpc, GameObject owner)
     {
         switch(ldpc)
         {
             case LidarDataProviderClass.SIMPLE_RANDOM:
-                return new SimpleRandomDataProvider();  
+                return new SimpleRandomDataProvider();
+            case LidarDataProviderClass.ROS:
+                return new ROSLidarSubscription();
         }
         Debug.LogError("Unsupported lidar data provider was asked for");
         return null;
