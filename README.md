@@ -36,7 +36,7 @@ This project requires an interesting environment setup. Supporting UWP requires 
 
 For this environment, I have a workspace created in c:\ws\r2_dotnet_ws, which borrows some environment from a full ROS2 install (like colcon), but not dependencies like rosdep or vcpkg.
 
-Create `c:\ws\r2_dotnet_wsenv.bat`:
+Create `c:\ws\r2_dotnet_ws\env.bat`:
 
 ``` batch
 set "ChocolateyInstall=c:\opt\chocolatey"
