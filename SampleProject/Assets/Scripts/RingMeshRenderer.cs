@@ -9,6 +9,7 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
 {
     private readonly int PREDICTED_LIDAR_RESOLUTION = 360;
     private readonly float RING_HEIGHT = 1.5f;
+    private readonly float WORLD_SCALE = 3f;
 
     private GameObject _meshHolder;
     private MeshFilter _meshFilter;
@@ -67,7 +68,7 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
             //   should vary from vInd only by y displacement
             float rad = ((float)(vInd/2) / (float)lidarData.Length) * (2 * Mathf.PI);
             // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
-            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[vInd / 2];
+            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[vInd / 2] * WORLD_SCALE;
             _verts[vInd] = offset;
             _verts[vInd + 1] = offset + Vector3.up * RING_HEIGHT;
 
