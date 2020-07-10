@@ -17,9 +17,6 @@ public class ROSLidarSubscription : ILidarDataProvider
         _sub = _r2l.node.CreateSubscription<LaserScan>(
             "scan", msg => {
                 _curScan = msg;
-                Debug.Log("Scan message: " + msg + " of size: " + msg.Ranges.Count);
-                Debug.Log("Scan content: " + msg.Ranges[0] +
-                    " - " + msg.Ranges[msg.Ranges.Count - 1]);
             }, ROS2.Utils.QosProfile.Profile.SensorData);        
     }
 
