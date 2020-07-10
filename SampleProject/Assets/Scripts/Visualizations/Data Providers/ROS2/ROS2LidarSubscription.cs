@@ -5,13 +5,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ROSLidarSubscription : ILidarDataProvider
+public class ROS2LidarSubscription : ILidarDataProvider
 {
     private ISubscription<LaserScan> _sub;
     private ROS2Listener _r2l;
     private LaserScan _curScan;
 
-    public ROSLidarSubscription()
+    public ROS2LidarSubscription()
     {
         _r2l = ROS2Listener.instance;
         _sub = _r2l.node.CreateSubscription<LaserScan>(

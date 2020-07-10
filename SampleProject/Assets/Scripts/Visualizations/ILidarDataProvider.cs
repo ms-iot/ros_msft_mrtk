@@ -23,7 +23,7 @@ public static class LidarDataProvider
             case LidarDataProviderClass.SIMPLE_RANDOM:
                 return new SimpleRandomDataProvider();
             case LidarDataProviderClass.ROS:
-                return new ROSLidarSubscription();
+                return new ROS2LidarSubscription();
         }
         Debug.LogError("Unsupported lidar data provider was asked for");
         return null;
