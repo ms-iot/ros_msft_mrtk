@@ -103,6 +103,8 @@ ros2 run rcldotnet_examples rcldotnet_talker.exe
   * Open the Unity Hub
   * Select add a project
   * Open the SampleProject from this repository.
+  * Open the asset store and navigate to the free 'ros#' package
+  * Download the 'ros#' package
   * Create a Blank GameObject
   * Add the ROS2Listener.cs script.
   * Click the play button in the editor.
