@@ -12,6 +12,14 @@ public class LidarVisualizer : MonoBehaviour
 {
     #region config
     #region globalFields
+    /// <summary>
+    /// Times per second that this GameObject should query the lidar and render the results.
+    /// </summary>
+    [SerializeField]
+    [Tooltip("The number of times per second that the lidar is queried and the visualization is updated.")]
+    [Range(1, 30)]
+    private int renderCallsPerSecond;
+
     public int lidarResolution = 360;
     public float worldScale = 1f;
     #endregion // globalFields
@@ -20,7 +28,7 @@ public class LidarVisualizer : MonoBehaviour
     public Vector2 randomRange;
     #endregion // simpleRandom
     #region ros1
-    public int rosConnectorTimeout;
+    public int rosConnectorTimeout = 10;
     public string rosBridgeURL = "ws://127.0.0.1:9090";
     public string topic = "/scan";
     #endregion // ros1
@@ -32,13 +40,7 @@ public class LidarVisualizer : MonoBehaviour
     #endregion // ISpaceRendererConfig
     #endregion // config
 
-    /// <summary>
-    /// Times per second that this GameObject should query the lidar and render the results.
-    /// </summary>
-    [SerializeField]
-    [Tooltip("The number of times per second that the lidar is queried and the visualization is updated.")]
-    [Range(1, 30)]
-    private int renderCallsPerSecond;
+    
 
     /// <summary>
     /// An enum, used solely to acquire _provider using the factory class found in ILidarDataProvider.cs

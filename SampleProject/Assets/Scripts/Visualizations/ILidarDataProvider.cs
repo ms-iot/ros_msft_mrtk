@@ -29,7 +29,10 @@ public static class LidarDataProvider
                 provider = new SimpleRandomDataProvider();
                 break;
             case LidarDataProviderClass.ROS1:
-
+                ROS1LidarSubscription sub = owner.gameObject.AddComponent<ROS1LidarSubscription>();
+                sub.Config(owner);
+                sub.Init();
+                provider = sub;
                 break;
             case LidarDataProviderClass.ROS2:
                 provider = new ROS2LidarSubscription();

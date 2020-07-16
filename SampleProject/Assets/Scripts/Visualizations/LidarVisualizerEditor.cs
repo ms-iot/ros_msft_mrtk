@@ -13,6 +13,9 @@ public class LidarVisualizerEditor : Editor
 
     SerializedProperty lidarDataProviderType;
     SerializedProperty randomRange;
+    SerializedProperty rosConnectorTimeout;
+    SerializedProperty rosBridgeURL;
+    SerializedProperty topic;
     SerializedProperty spaceRendererType;
     SerializedProperty ringHeight;
 
@@ -23,8 +26,13 @@ public class LidarVisualizerEditor : Editor
         renderCallsPerSecond = serializedObject.FindProperty("renderCallsPerSecond");
         lidarResolution = serializedObject.FindProperty("lidarResolution");
         worldScale = serializedObject.FindProperty("worldScale");
+
         lidarDataProviderType = serializedObject.FindProperty("lidarDataProviderType");
         randomRange = serializedObject.FindProperty("randomRange");
+        rosConnectorTimeout = serializedObject.FindProperty("rosConnectorTimeout");
+        rosBridgeURL = serializedObject.FindProperty("rosBridgeURL");
+        topic = serializedObject.FindProperty("topic");
+
         spaceRendererType = serializedObject.FindProperty("spaceRendererType");
         ringHeight = serializedObject.FindProperty("ringHeight");
 
@@ -46,6 +54,11 @@ public class LidarVisualizerEditor : Editor
         {
             case LidarDataProviderClass.SIMPLE_RANDOM:
                 EditorGUILayout.PropertyField(randomRange);
+                break;
+            case LidarDataProviderClass.ROS1:
+                EditorGUILayout.PropertyField(rosConnectorTimeout);
+                EditorGUILayout.PropertyField(rosBridgeURL);
+                EditorGUILayout.PropertyField(topic);
                 break;
         }
 
