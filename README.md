@@ -19,7 +19,7 @@ This project depends on your installation of ROS1 melodic for Windows.
 
 ## Installing ROS1
 
-Please follow the [instructions for installing ROS1 on Windows](https://wiki.ros.org/Installation/Windows)
+Please follow the [instructions for installing ROS1 on Windows](https://wiki.ros.org/Installation/Windows).
 
 
 # Getting started - ROS2
@@ -112,6 +112,7 @@ ros2 run rcldotnet_examples rcldotnet_talker.exe
   * Open the Unity Hub
   * Select add a project
   * Open the SampleProject from this repository.
+  * Ensure that your Unity project is using the `.NET 4.x` Api Compatibility Level (Edit > Project Settings > Player > Other Settings > Api Compatibility Level)
   * ### For manipulating ROS1 robots within Unity:
     * Open the asset store and navigate to the free 'ros#' package
     * Download the 'ros#' package
