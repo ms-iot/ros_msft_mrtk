@@ -5,12 +5,9 @@ using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography;
 using UnityEngine;
 
-
-public class RingMeshRenderer : RosSharp.RosBridgeClient.LaserScanVisualizer, ISpaceRenderer
+public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
 {
-    private readonly int PREDICTED_LIDAR_RESOLUTION = 360;
-    private readonly float RING_HEIGHT = 1.5f;
-    private readonly float WORLD_SCALE = 3f;
+    private LidarVisualizer _owner;
 
     private GameObject _meshHolder;
     private MeshFilter _meshFilter;
@@ -60,6 +57,10 @@ public class RingMeshRenderer : RosSharp.RosBridgeClient.LaserScanVisualizer, IS
         {
             Init(origin);
         }
+        if (lidarData.Length != _logicalVertsCount)
+        {
+            Debug.LogWarning("Renderer is configured to handle different resolution of lidar data than it is being passed.");
+        }
 
         CleanData(ref lidarData);
         for (int vInd = 0; vInd < _verts.Length; vInd += 2)
@@ -69,9 +70,9 @@ public class RingMeshRenderer : RosSharp.RosBridgeClient.LaserScanVisualizer, IS
             //   should vary from vInd only by y displacement
             float rad = (((float)(vInd/2) / (float)lidarData.Length) * (2 * Mathf.PI)) - (Mathf.PI / 2);
             // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
-            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[vInd / 2] * WORLD_SCALE;
+            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[vInd / 2] * _owner.worldScale;
             _verts[vInd] = offset;
-            _verts[vInd + 1] = offset + Vector3.up * RING_HEIGHT;
+            _verts[vInd + 1] = offset + Vector3.up * _owner.ringHeight;
 
         }
 
@@ -98,14 +99,14 @@ public class RingMeshRenderer : RosSharp.RosBridgeClient.LaserScanVisualizer, IS
         _mesh = new Mesh();
         _mesh.name = "Lidar Data";
         // Building a ladder-shaped mesh with two identical rings of vertices
-        _verts = new Vector3[PREDICTED_LIDAR_RESOLUTION * 2];
-        _logicalVertsCount = PREDICTED_LIDAR_RESOLUTION;
+        _verts = new Vector3[_owner.lidarResolution * 2];
+        _logicalVertsCount = _owner.lidarResolution;
         // 3 ints per triangle * 2 (double-sided triangle viewable from both sides)
         //   * 2 triangles per lidar reading (because circular)
         // - O - O
         // / | / |
         // - O - O
-        _triangles = new int[PREDICTED_LIDAR_RESOLUTION * 12];
+        _triangles = new int[_owner.lidarResolution * 12];
         _mesh.vertices = _verts;
         _mesh.triangles = _triangles;
         _meshFilter.mesh = _mesh;
@@ -283,16 +284,8 @@ public class RingMeshRenderer : RosSharp.RosBridgeClient.LaserScanVisualizer, IS
         
     }
 
-    protected override void Visualize()
+    public void Config(LidarVisualizer viz)
     {
-        Render(this.ranges, transform);
-    }
-
-    protected override void DestroyObjects()
-    {
-        if (this._meshHolder != null)
-        {
-            Destroy(this._meshHolder);
-        }
+        _owner = viz;
     }
 }

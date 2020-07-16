@@ -4,25 +4,29 @@ using UnityEngine;
 
 
 /// <summary>
-/// This implementation of ILidarDataProvider creates a 1000-resolutioned data reading of random floats between 8f and 10f.
+/// This implementation of ILidarDataProvider creates a configurable-resolutioned data reading of random floats between 8f and 10f.
 /// </summary>
 public class SimpleRandomDataProvider : ILidarDataProvider
 {
+    private LidarVisualizer _owner;
     // only allocate one array for this implementation
-    protected float[] _reserved;  
+    protected float[] _reserved;
 
-    public SimpleRandomDataProvider()
+    public SimpleRandomDataProvider() { }
+
+    public void Config(LidarVisualizer viz)
     {
-        _reserved = new float[1000];
+        _owner = viz;
+        _reserved = new float[_owner.lidarResolution];
     }
-
 
     public float[] Query()
     {
         for (int i = 0; i < _reserved.Length; i++)
         {
-            _reserved[i] = Random.Range(8f, 10f);
+            _reserved[i] = Random.Range(_owner.randomRange.x, _owner.randomRange.y);
         }
         return _reserved;
     }
 }
+

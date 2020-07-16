@@ -1,31 +1,45 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditorInternal;
 using UnityEngine;
 
 public interface ILidarDataProvider
 {
     // probably will become async in future, not sure what the ROS framework entails
-    float[] Query();  
+    float[] Query();
+    void Config(LidarVisualizer viz);
 }
+
 
 public enum LidarDataProviderClass
 {
     SIMPLE_RANDOM,
-    ROS
+    ROS1,
+    ROS2
 }
 
 public static class LidarDataProvider
 {
-    public static ILidarDataProvider GetLidarDataProvider(LidarDataProviderClass ldpc, GameObject owner)
+    public static ILidarDataProvider GetLidarDataProvider(LidarDataProviderClass ldpc, LidarVisualizer owner)
     {
-        switch(ldpc)
+        ILidarDataProvider provider = null;
+        switch (ldpc)
         {
             case LidarDataProviderClass.SIMPLE_RANDOM:
-                return new SimpleRandomDataProvider();
-            case LidarDataProviderClass.ROS:
-                return new ROS2LidarSubscription();
+                provider = new SimpleRandomDataProvider();
+                break;
+            case LidarDataProviderClass.ROS1:
+
+                break;
+            case LidarDataProviderClass.ROS2:
+                provider = new ROS2LidarSubscription();
+                break;
         }
-        Debug.LogError("Unsupported lidar data provider was asked for");
-        return null;
+        if (provider == null)
+        {
+            Debug.LogError("Unsupported lidar data provider was asked for");
+        }
+        provider.Config(owner);
+        return provider;
     }
 }
