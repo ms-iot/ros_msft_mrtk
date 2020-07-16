@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# ROS1/2 module-specific files
+SampleProject/Assets/Plugins/
+SampleProject/Assets/RosSharp/
+SampleProject/Assets/RosSharp.meta
+
+
 # User-specific files
 *.suo
 *.user
@@ -23,8 +29,6 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
-SampleProject/Assets/Plugins/
-SampleProject/Assets/RosSharp/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
