@@ -56,9 +56,19 @@ public class LidarVisualizerEditor : Editor
                 EditorGUILayout.PropertyField(randomRange);
                 break;
             case LidarDataProviderClass.ROS1:
+#if ROS1_MODULE_LIDAR
                 EditorGUILayout.PropertyField(rosConnectorTimeout);
                 EditorGUILayout.PropertyField(rosBridgeURL);
                 EditorGUILayout.PropertyField(topic);
+#else
+                EditorGUILayout.HelpBox("The Ros1 lidar module has not been loaded. Check the readme for more details.", MessageType.Warning);
+#endif
+                break;
+            case LidarDataProviderClass.ROS2:
+#if ROS2_MODULE_LIDAR
+#else
+                EditorGUILayout.HelpBox("The Ros2 lidar module has not been loaded. Check the readme for more details.", MessageType.Warning);
+#endif
                 break;
         }
 

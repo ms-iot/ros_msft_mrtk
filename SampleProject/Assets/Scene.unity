@@ -246,7 +246,7 @@ Transform:
   m_LocalScale: {x: 10, y: 0.1, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &457654551
 MeshRenderer:
@@ -853,7 +853,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1098782708
 MonoBehaviour:
@@ -875,7 +875,7 @@ MonoBehaviour:
   rosBridgeURL: ws://192.168.0.44:9090
   topic: /scan
   ringHeight: 3
-  lidarDataProviderType: 1
+  lidarDataProviderType: 2
   spaceRendererType: 2
 --- !u!33 &1098782709
 MeshFilter:
@@ -1539,7 +1539,7 @@ Transform:
   m_Children:
   - {fileID: 1355070619}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1656912590
 MonoBehaviour:
@@ -1603,80 +1603,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _panelSizeToggler: {fileID: 1355070620}
---- !u!1001 &1751743354
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1846521975884063492, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 20.598759
-      objectReference: {fileID: 0}
-    - target: {fileID: 1846521975884063492, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -10.452176
-      objectReference: {fileID: 0}
-    - target: {fileID: 1846521975884063492, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 7.0540295
-      objectReference: {fileID: 0}
-    - target: {fileID: 1846521975884063492, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1846521975884063492, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1846521975884063492, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1846521975884063492, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1846521975884063492, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1846521975884063492, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1846521975884063492, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1846521975884063492, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1846521975884063493, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_Name
-      value: Chatterbox
-      objectReference: {fileID: 0}
-    - target: {fileID: 1846521975884063493, guid: 399a99d9adb7bb44498e515432fcf157,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 399a99d9adb7bb44498e515432fcf157, type: 3}
 --- !u!1 &1989312379
 GameObject:
   m_ObjectHideFlags: 0

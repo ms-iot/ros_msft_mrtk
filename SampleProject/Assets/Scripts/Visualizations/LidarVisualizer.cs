@@ -24,7 +24,7 @@ public class LidarVisualizer : MonoBehaviour
     public float worldScale = 1f;
     #endregion // globalFields
     #region ILidarDataProviderConfig
-    #region simpleRandom
+    #region simpleRandom 
     public Vector2 randomRange;
     #endregion // simpleRandom
     #region ros1
