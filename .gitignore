@@ -3,10 +3,6 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-# ROS1/2 module-specific files
-SampleProject/Assets/Plugins/
-SampleProject/Assets/RosSharp/
-SampleProject/Assets/RosSharp.meta
 
 
 # User-specific files
@@ -353,7 +349,8 @@ ASALocalRun/
 /[Mm]emoryCaptures/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
-!/[Aa]ssets/**/*.meta
+!/SampleProject/[Aa]ssets/**/*.meta
+!/SampleProject/[Aa]ssets/*.rsp
 
 # Uncomment this line if you wish to ignore the asset store tools plugin
 # /[Aa]ssets/AssetStoreTools*
@@ -407,3 +404,14 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+
+# ROS1/2 module-specific files
+/SampleProject/[Aa]ssets/Plugins
+/SampleProject/[Aa]ssets/RosSharp
+/SampleProject/[Aa]ssets/RosSharp.meta
+/SampleProject/[Aa]ssets/Prefabs/Debug/Chatterbox
+/SampleProject/[Aa]ssets/**/ROS1
+/SampleProject/[Aa]ssets/**/ROS1.meta
+/SampleProject/[Aa]ssets/**/ROS2
+/SampleProject/[Aa]ssets/**/ROS2.meta
