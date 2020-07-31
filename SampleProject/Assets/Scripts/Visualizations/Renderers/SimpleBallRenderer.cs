@@ -16,6 +16,8 @@ public class BallRenderer : ISpaceRenderer
     protected GameObject[] _ballCache;
     protected int _ballCacheSize;
 
+    protected LidarVisualizer _owner;
+
     public BallRenderer()
     {
         _ballPrefab = Resources.Load<GameObject>("Sphere");
@@ -26,7 +28,11 @@ public class BallRenderer : ISpaceRenderer
         }
     }
 
-    
+    public void Config(LidarVisualizer viz)
+    {
+        _owner = viz;
+    }
+
     public virtual void Render(float[] lidarData, Transform origin)
     {
         if (_ballCache == null)
@@ -46,7 +52,7 @@ public class BallRenderer : ISpaceRenderer
             }
             float rad = ((float)i / (float)lidarData.Length) * (2 * Mathf.PI);
             // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
-            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[i];  
+            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[i] * _owner.worldScale;  
             // wake up/activate the object if it wasn't used last frame
             _ballCache[i].SetActive(true);
             _ballCache[i].transform.localPosition = offset;
@@ -80,6 +86,11 @@ public class BallRenderer : ISpaceRenderer
             }
             
             _ballCacheSize = size;
+
+            for (int i = 0; i < _ballCacheSize; i++)
+            {
+                _ballCache[i].SetActive(true);
+            }
         }
     }
 }

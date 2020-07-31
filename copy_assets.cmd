@@ -17,6 +17,7 @@ xcopy /y /c %ROS2DOTNET_install%\bin\*.pdb %AssetsFolder%
 xcopy /y /c %ROS2DOTNET_install%\Lib\builtin_interfaces\dotnet\builtin_interfaces_assemblies.* %AssetsFolder%
 xcopy /y /c %ROS2DOTNET_install%\Lib\builtin_interfaces\dotnet\rcldotnet_common.* %AssetsFolder%
 xcopy /y /c %ROS2DOTNET_install%\Lib\rcldotnet\dotnet\rcldotnet_assemblies.* %AssetsFolder%
+xcopy /y /c %ROS2DOTNET_install%\Lib\rclcppdotnet\dotnet\rclcppdotnet_assemblies.* %AssetsFolder%
 
 for /R "%ROS2DOTNET_install%\lib\" %%f in (*_msgs_assemblies.*) do  xcopy  /y /c %%f %AssetsFolder%
 

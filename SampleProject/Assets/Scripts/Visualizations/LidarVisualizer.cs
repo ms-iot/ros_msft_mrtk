@@ -10,6 +10,8 @@ using UnityEngine;
 /// </summary>
 public class LidarVisualizer : MonoBehaviour
 {
+    #region config
+    #region globalFields
     /// <summary>
     /// Times per second that this GameObject should query the lidar and render the results.
     /// </summary>
@@ -17,6 +19,28 @@ public class LidarVisualizer : MonoBehaviour
     [Tooltip("The number of times per second that the lidar is queried and the visualization is updated.")]
     [Range(1, 30)]
     private int renderCallsPerSecond;
+
+    public int lidarResolution = 360;
+    public float worldScale = 1f;
+    #endregion // globalFields
+    #region ILidarDataProviderConfig
+    #region simpleRandom 
+    public Vector2 randomRange;
+    #endregion // simpleRandom
+    #region ros1
+    public int rosConnectorTimeout = 10;
+    public string rosBridgeURL = "ws://127.0.0.1:9090";
+    public string topic = "/scan";
+    #endregion // ros1
+    #endregion //ILidarDataProviderConfig
+    #region ISpaceRendererConfig
+    #region ringMeshFields
+    public float ringHeight = 1f;
+    #endregion // ringMeshFields
+    #endregion // ISpaceRendererConfig
+    #endregion // config
+
+    
 
     /// <summary>
     /// An enum, used solely to acquire _provider using the factory class found in ILidarDataProvider.cs
@@ -45,8 +69,8 @@ public class LidarVisualizer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _renderer = SpaceRenderer.GetSpaceRenderer(spaceRendererType, gameObject);
-        _provider = LidarDataProvider.GetLidarDataProvider(lidarDataProviderType, gameObject);
+        _renderer = SpaceRenderer.GetSpaceRenderer(spaceRendererType, this);
+        _provider = LidarDataProvider.GetLidarDataProvider(lidarDataProviderType, this);
 
         
         InvokeRepeating("RegenerateSite", 0f, 1f / renderCallsPerSecond);

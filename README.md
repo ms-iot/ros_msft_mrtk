@@ -5,14 +5,24 @@
 > During the preview, this repository will be available only as sources. As it exits preview, a Nuget package will be provided.
 
 # Mixed Reality Toolkit for ROS Overview
-The Robot Operating system - also called ROS [^1] - is an open source middleware for creating Robots. This repository implements glue which connects your Mixed Reality Robotics application with Robots and infrastructure running ROS2. It works with [ROS2.net](https://github.com/ros2-dotnet/ros2_dotnet)[^2] within the Unity Game Engine.
+The Robot Operating system - also called ROS [^1] - is an open source middleware for creating Robots. This repository implements glue which connects your Mixed Reality Robotics application with Robots and infrastructure running ROS1 and/or ROS2. It works with [RosSharp](https://github.com/siemens/ros-sharp) and/or [ROS2.net](https://github.com/ros2-dotnet/ros2_dotnet) within the Unity Game Engine.
 
 The Mixed Reality Toolkit is an Open Source framework for building Virtual Reality and Augmented Reality applications, which target numerous platforms - including Hololens.
 
 The MRTK for ROS Unity Extension is being developed by the ROS2.net maintainers, the Microsoft Edge Robotics team and the Mixed Reality Robotics team.
 
+# Getting started - ROS1
+This project depends on your installation of ROS1 melodic for Windows.
 
-# Getting started
+> NOTE: Because of the dependency chain, Windows is required. MRTK for ROS development will not be supported on other platforms.
+> However, once deployed the MRTK ROS application will support visualizing robots running ROS2 on other platforms.
+
+## Installing ROS1
+
+Please follow the [instructions for installing ROS1 on Windows](https://wiki.ros.org/Installation/Windows).
+
+
+# Getting started - ROS2
 This project depends on your installation of ROS2 eloquent and ROS2.net for eloquent for Windows.
 
 > NOTE: Because of the dependency chain, Windows is required. MRTK for ROS development will not be supported on other platforms.
@@ -99,15 +109,25 @@ ros2 run rcldotnet_examples rcldotnet_talker.exe
 ## Bootstrapping your Mixed Reality Toolkit Application
 
   * Clone this repository to your computer.
-  * From the ROS command prompt, change the directory to where you cloned the MRTK extension, and run `copy_assets.cmd c:\ws\r2_dotnet_ws`
   * Open the Unity Hub
   * Select add a project
   * Open the SampleProject from this repository.
+  * Ensure that your Unity project is using the `.NET 4.x` Api Compatibility Level (Edit > Project Settings > Player > Other Settings > Api Compatibility Level)
+  * ### For manipulating ROS1 robots within Unity:
+    * Open the asset store and navigate to the free 'ros#' package
+    * Download the 'ros#' package
+    * Copy the contents of the 'Ros1Module' directory from the root of this repository into the SampleProject/Assets folder
+    * Open up `SampleProject/Assets/csc.rsp` in a text editor and uncomment the `#-define:ROS1_MODULE_LIDAR` line (remove the '#' character at the start of the line)
+  * ### For manipulating ROS2 robots within Unity:
+    * From the ROS command prompt, change the directory to where you cloned the MRTK extension, and run `copy_assets.cmd c:\ws\r2_dotnet_ws`
+    * Copy the contents of the 'Ros2Module' directory from the root of this repository into the SampleProject/Assets folder
+    * Open up `SampleProject/Assets/csc.rsp` in a text editor and uncomment the `#-define:ROS2_MODULE_LIDAR` line (remove the '#' character at the start of the line)
   * Create a Blank GameObject
-  * Add the ROS2Listener.cs script.
+  * Add the LidarVisualizer.cs script and select which version of ROS you are using
+    * There may be more configuration options to set, depending on your setup
   * Click the play button in the editor.
 
-You should see debug logging saying "Hello World"
+If configured properly, lidar data should be getting fed in from ROS and displayed in the scene.
 
 
 # Contributions
@@ -122,4 +142,3 @@ During development, Unity's cache can become corrupted. If you encounter build o
   * Recopy plugins
 
 [^1]: ROS is a trademark of Open Robotics.
-[^2]: If you are interesting in using ROS1, you can leverage this repository with the [ROS1/ROS2 bridge](https://github.com/ros2/ros1_bridge), or look at [ros-sharp](https://github.com/siemens/ros-sharp). However, please understand this is not directly supported.

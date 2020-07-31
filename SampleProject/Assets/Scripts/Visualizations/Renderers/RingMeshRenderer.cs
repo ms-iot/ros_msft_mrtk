@@ -2,14 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
+using System.Security.Cryptography;
 using UnityEngine;
-
 
 public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
 {
-    private readonly int PREDICTED_LIDAR_RESOLUTION = 360;
-    private readonly float RING_HEIGHT = 1.5f;
-    private readonly float WORLD_SCALE = 3f;
+    private LidarVisualizer _owner;
 
     private GameObject _meshHolder;
     private MeshFilter _meshFilter;
@@ -59,18 +57,22 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         {
             Init(origin);
         }
+        if (lidarData.Length != _logicalVertsCount)
+        {
+            Debug.LogWarning("Renderer is configured to handle different resolution of lidar data than it is being passed.");
+        }
 
-        HandleInfinity(ref lidarData);
+        CleanData(ref lidarData);
         for (int vInd = 0; vInd < _verts.Length; vInd += 2)
         {
             // vInd = index for column in the ladder; 
             //   vInd+1 = second ring/top of column which
             //   should vary from vInd only by y displacement
-            float rad = ((float)(vInd/2) / (float)lidarData.Length) * (2 * Mathf.PI);
+            float rad = (((float)(vInd/2) / (float)lidarData.Length) * (2 * Mathf.PI)) - (Mathf.PI / 2);
             // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
-            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[vInd / 2] * WORLD_SCALE;
+            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[vInd / 2] * _owner.worldScale;
             _verts[vInd] = offset;
-            _verts[vInd + 1] = offset + Vector3.up * RING_HEIGHT;
+            _verts[vInd + 1] = offset + Vector3.up * _owner.ringHeight;
 
         }
 
@@ -97,14 +99,14 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         _mesh = new Mesh();
         _mesh.name = "Lidar Data";
         // Building a ladder-shaped mesh with two identical rings of vertices
-        _verts = new Vector3[PREDICTED_LIDAR_RESOLUTION * 2];
-        _logicalVertsCount = PREDICTED_LIDAR_RESOLUTION;
+        _verts = new Vector3[_owner.lidarResolution * 2];
+        _logicalVertsCount = _owner.lidarResolution;
         // 3 ints per triangle * 2 (double-sided triangle viewable from both sides)
         //   * 2 triangles per lidar reading (because circular)
         // - O - O
         // / | / |
         // - O - O
-        _triangles = new int[PREDICTED_LIDAR_RESOLUTION * 12];
+        _triangles = new int[_owner.lidarResolution * 12];
         _mesh.vertices = _verts;
         _mesh.triangles = _triangles;
         _meshFilter.mesh = _mesh;
@@ -115,7 +117,15 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         
     }
 
-    private void HandleInfinity(ref float[] lidarData)
+    private void CleanData(ref float[] lidarData)
+    {
+        LinearlyInterpolateDeadPoints(ref lidarData, (flt) =>
+        {
+            return float.IsInfinity(flt) || flt < 0.01f;
+        });
+    }
+
+    private void LinearlyInterpolateDeadPoints(ref float[] lidarData, Predicate<float> deadPointClassify)
     {
         //////////////////////////////////////////////////
         /// Edge Case - Loop needs lerping
@@ -123,12 +133,12 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
             int startInd = lidarData.Length - 1;
             int endInd = 0;
             int gap = 0;
-            if (float.IsInfinity(lidarData[0]))
+            if (deadPointClassify(lidarData[0]))
             {
                 gap++;
                 for (int i = 1; i < lidarData.Length; i++)
                 {
-                    if (!float.IsInfinity(lidarData[i]))
+                    if (!deadPointClassify(lidarData[i]))
                     {
                         gap += i - 1;
                         endInd = i;
@@ -137,7 +147,7 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
                 }
                 for (int i = 1; i < lidarData.Length; i++)
                 {
-                    if (!float.IsInfinity(lidarData[lidarData.Length - i]))
+                    if (!deadPointClassify(lidarData[lidarData.Length - i]))
                     {
                         gap += i - 1;
                         startInd = lidarData.Length - i;
@@ -145,12 +155,12 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
                     }
                 }
             }
-            else if (float.IsInfinity(lidarData[lidarData.Length - 1]))
+            else if (deadPointClassify(lidarData[lidarData.Length - 1]))
             {
                 gap++;
                 for (int i = 1; i < lidarData.Length; i++)
                 {
-                    if (!float.IsInfinity(lidarData[lidarData.Length - i]))
+                    if (!deadPointClassify(lidarData[lidarData.Length - i]))
                     {
                         gap += i - 2;
                         startInd = lidarData.Length - i;
@@ -177,14 +187,14 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         {
             for (int i = 1; i < lidarData.Length - 1; i++)
             {
-                if (float.IsInfinity(lidarData[i]))
+                if (deadPointClassify(lidarData[i]))
                 {
                     int startInd = i - 1;
                     int endInd = i;
                     int gap = 1;
                     for (int j = 1; i + j < lidarData.Length; j++)
                     {
-                        if (!float.IsInfinity(lidarData[i + j]))
+                        if (!deadPointClassify(lidarData[i + j]))
                         {
                             gap = j;
                             endInd = i + j;
@@ -274,5 +284,8 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         
     }
 
-    
+    public void Config(LidarVisualizer viz)
+    {
+        _owner = viz;
+    }
 }

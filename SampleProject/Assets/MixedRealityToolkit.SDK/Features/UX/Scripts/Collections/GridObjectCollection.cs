@@ -200,6 +200,14 @@ namespace Microsoft.MixedReality.Toolkit.Utilities
         protected Vector2 HalfCell;
 
         /// <summary>
+        /// Raw count of the children managed by this GridObjectCollection
+        /// </summary>
+        public int CellCount
+        {
+            get { return NodeList.Count; }
+        }
+
+        /// <summary>
         /// Overriding base function for laying out all the children when UpdateCollection is called.
         /// </summary>
         protected override void LayoutChildren()
