@@ -104,9 +104,19 @@ install\setup.bat
 ros2 run rcldotnet_examples rcldotnet_talker.exe
 ```
 
+# Installing the fiducial marker (Apriltag) package
 
+The fiducial system is for processing camera images to locate the robot in space.
 
-## Bootstrapping your Mixed Reality Toolkit Application
+``` batch
+cd c:\opt\vcpkg
+git remote set origin https://github.com/ooeygui/vcpkg
+git pull
+bootstrap-vcpkg.bat
+vcpkg install apriltag:x64-windows
+```
+
+# Bootstrapping your Mixed Reality Toolkit Application
 
   * Clone this repository to your computer.
   * Open the Unity Hub
