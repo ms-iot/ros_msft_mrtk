@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using ROS2;
+using System;
+using System.Runtime.InteropServices;
 
 public class FiducialSystem : MonoBehaviour
 {
@@ -10,9 +12,19 @@ public class FiducialSystem : MonoBehaviour
 
     private TransformListener listener;
 
+    #region Apriltag P/Invoke
+    [DllImport("apriltags-umich")]
+    private static extern IntPtr apriltag_detector_create();
+
+    [DllImport("apriltags-umich")]
+    private static extern void apriltag_detector_destroy(IntPtr det);
+    #endregion // Apriltag P/Invoke
+
     // Start is called before the first frame update
     void Start()
     {
+        IntPtr ptr = apriltag_detector_create();
+        apriltag_detector_destroy(ptr);
         if (instance == null)
         {
             RclCppDotnet.Init();

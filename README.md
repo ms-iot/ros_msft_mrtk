@@ -129,7 +129,7 @@ vcpkg install apriltag:x64-windows
     * Copy the contents of the 'Ros1Module' directory from the root of this repository into the SampleProject/Assets folder
     * Open up `SampleProject/Assets/csc.rsp` in a text editor and uncomment the `#-define:ROS1_MODULE_LIDAR` line (remove the '#' character at the start of the line)
   * ### For manipulating ROS2 robots within Unity:
-    * From the ROS command prompt, change the directory to where you cloned the MRTK extension, and run `copy_assets.cmd c:\ws\r2_dotnet_ws`
+    * From the ROS command prompt, change the directory to where you cloned the MRTK extension, and run `copy_assets.cmd c:\ws\r2_dotnet_ws` (make sure your Unity client is closed for this step!)
     * Copy the contents of the 'Ros2Module' directory from the root of this repository into the SampleProject/Assets folder
     * Open up `SampleProject/Assets/csc.rsp` in a text editor and uncomment the `#-define:ROS2_MODULE_LIDAR` line (remove the '#' character at the start of the line)
   * Create a Blank GameObject
