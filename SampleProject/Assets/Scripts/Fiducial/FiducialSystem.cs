@@ -6,13 +6,10 @@ using ROS2;
 using System;
 using System.Runtime.InteropServices;
 using UnityEditor.Experimental.GraphView;
+using System.Text.RegularExpressions;
 
 public class FiducialSystem : MonoBehaviour
 {
-    private static FiducialSystem instance;
-
-    private TransformListener listener;
-
     #region Apriltag P/Invoke
 
     [DllImport("apriltags-umich")]
@@ -94,11 +91,24 @@ public class FiducialSystem : MonoBehaviour
         public Matd* t;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct image_u8
+    {
+        public int width;
+        public int height;
+        public int stride;
+
+        public IntPtr buf;
+    }
+
     #endregion // Apriltag Structures
+
+    private static FiducialSystem instance;
+
+    private TransformListener listener;
 
     private IntPtr detector;
     private IntPtr family;
-
     private ZArray detections;
 
     // Start is called before the first frame update
@@ -107,6 +117,7 @@ public class FiducialSystem : MonoBehaviour
         
         if (instance == null)
         {
+            instance = this;
             RclCppDotnet.Init();
             this.listener = new TransformListener();
             detector = apriltag_detector_create();
@@ -118,8 +129,7 @@ public class FiducialSystem : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    public void UpdateSpacePinning(WebcamSystem.CaptureFrameInstance captureFrame)
     {
         TfVector3? loc = listener.LookupTranslation("base_link", "map");
         if (loc != null)
@@ -127,10 +137,10 @@ public class FiducialSystem : MonoBehaviour
             Debug.Log(string.Format("Location in map frame is currently: {0}, {1}, {2}", loc.Value.x, loc.Value.y, loc.Value.z));
         }
         // TODO replace IntPtr.Zero with an actual img
-        IntPtr nativeDetectionsHandle = apriltag_detector_detect(detector, IntPtr.Zero);
-        
+        IntPtr nativeDetectionsHandle = apriltag_detector_detect(detector, &captureFrame);
+
         detections = Marshal.PtrToStructure<ZArray>(nativeDetectionsHandle);
-        
+
         for (int i = 0; i < detections.size; i++)
         {
             IntPtr det = IntPtr.Add(detections.data, i * Marshal.SizeOf<ApriltagDetection>());
@@ -142,11 +152,14 @@ public class FiducialSystem : MonoBehaviour
             //info.cy = blah
             AprilTagPose pose = new AprilTagPose();
             double err = estimate_tag_pose(in info, out pose);
-            
+
         }
         apriltag_detections_destroy(nativeDetectionsHandle);
-        
+        nativeDetectionsHandle = IntPtr.Zero;
+    }
 
+    void Update()
+    {
 #if UNITY_EDITOR
         if (UnityEditor.EditorApplication.isPlaying == false)
         {
