@@ -104,9 +104,19 @@ install\setup.bat
 ros2 run rcldotnet_examples rcldotnet_talker.exe
 ```
 
+# Installing the fiducial marker (Apriltag) package
 
+The fiducial system is for processing camera images to locate the robot in space.
 
-## Bootstrapping your Mixed Reality Toolkit Application
+``` batch
+cd c:\opt\vcpkg
+git remote set origin https://github.com/ooeygui/vcpkg
+git pull
+bootstrap-vcpkg.bat
+vcpkg install apriltag:x64-windows
+```
+
+# Bootstrapping your Mixed Reality Toolkit Application
 
   * Clone this repository to your computer.
   * Open the Unity Hub
@@ -119,7 +129,9 @@ ros2 run rcldotnet_examples rcldotnet_talker.exe
     * Copy the contents of the 'Ros1Module' directory from the root of this repository into the SampleProject/Assets folder
     * Open up `SampleProject/Assets/csc.rsp` in a text editor and uncomment the `#-define:ROS1_MODULE_LIDAR` line (remove the '#' character at the start of the line)
   * ### For manipulating ROS2 robots within Unity:
-    * From the ROS command prompt, change the directory to where you cloned the MRTK extension, and run `copy_assets.cmd c:\ws\r2_dotnet_ws`
+
+    * From the ROS command prompt, change the directory to where you cloned the MRTK extension, and run `copy_assets.cmd c:\ws\r2_dotnet_ws` (make sure your Unity client is closed for this step!)
+
     * Copy the contents of the 'Ros2Module' directory from the root of this repository into the SampleProject/Assets folder
     * Open up `SampleProject/Assets/csc.rsp` in a text editor and uncomment the `#-define:ROS2_MODULE_LIDAR` line (remove the '#' character at the start of the line)
   * Create a Blank GameObject

@@ -352,6 +352,7 @@ ASALocalRun/
 !/SampleProject/[Aa]ssets/**/*.meta
 !/SampleProject/[Aa]ssets/*.rsp
 
+
 # Uncomment this line if you wish to ignore the asset store tools plugin
 # /[Aa]ssets/AssetStoreTools*
 
