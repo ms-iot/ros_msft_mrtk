@@ -36,6 +36,12 @@ public class FiducialSystem : MonoBehaviour
     [DllImport("apriltags-umich")]
     private static extern double estimate_tag_pose(in AprilTagDetectionInfo info, out AprilTagPose pose);
 
+
+    //debug
+    [DllImport("apriltags-umich")]
+    private static extern int image_u8_write_pnm(IntPtr image, string s);
+
+    
     #endregion // Apriltag P/Invoke
 
 
@@ -103,13 +109,15 @@ public class FiducialSystem : MonoBehaviour
 
     #endregion // Apriltag Structures
 
-    private static FiducialSystem instance;
+    public static FiducialSystem instance;
 
     private TransformListener listener;
 
     private IntPtr detector;
     private IntPtr family;
     private ZArray detections;
+
+    private bool active = false;
 
     // Start is called before the first frame update
     void Start()
@@ -122,6 +130,7 @@ public class FiducialSystem : MonoBehaviour
             this.listener = new TransformListener();
             detector = apriltag_detector_create();
             family = tagStandard41h12_create();
+            active = true;
         } else
         {
             Debug.LogWarning("Duplicate FiducialSystem tried to initialize in scene on gameobject " + this.gameObject + "; Destroying self!");
@@ -136,8 +145,10 @@ public class FiducialSystem : MonoBehaviour
         {
             Debug.Log(string.Format("Location in map frame is currently: {0}, {1}, {2}", loc.Value.x, loc.Value.y, loc.Value.z));
         }
-        // TODO replace IntPtr.Zero with an actual img
-        IntPtr nativeDetectionsHandle = apriltag_detector_detect(detector, &captureFrame);
+
+        //int res = image_u8_write_pnm(captureFrame.unmanagedFrame, "m:\\debugImg\\garboogle.pnm");
+
+        IntPtr nativeDetectionsHandle = apriltag_detector_detect(detector, captureFrame.unmanagedFrame);
 
         detections = Marshal.PtrToStructure<ZArray>(nativeDetectionsHandle);
 
@@ -175,8 +186,12 @@ public class FiducialSystem : MonoBehaviour
 
     private void Shutdown()
     {
-        RclCppDotnet.Shutdown();
-        apriltag_detector_destroy(detector);
-        tagStandard41h12_destroy(family);
+        if (active)
+        {
+            RclCppDotnet.Shutdown();
+            apriltag_detector_destroy(detector);
+            tagStandard41h12_destroy(family);
+            active = false;
+        }
     }
 }

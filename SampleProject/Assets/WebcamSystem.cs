@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Windows.WebCam;
 
 public class WebcamSystem : MonoBehaviour
@@ -73,8 +75,8 @@ public class WebcamSystem : MonoBehaviour
 
     void OnStoppedPhotoMode(PhotoCapture.PhotoCaptureResult result)
     {
-        captureObject = null;
         captureObject.Dispose();
+        captureObject = null;
         ready = false;
     }
 
@@ -96,8 +98,9 @@ public class WebcamSystem : MonoBehaviour
 
     private void Shutdown()
     {
-        if (captureObject != null)
+        if (captureObject != null && ready)
         {
+            ready = false;
             captureObject.StopPhotoModeAsync(OnStoppedPhotoMode);
         }
     }
@@ -110,24 +113,65 @@ public class WebcamSystem : MonoBehaviour
     /// </summary>
     public class CaptureFrameInstance
     {
-        PhotoCaptureFrame managedFrame;
-        System.IntPtr unmanagedFrame;
+        public PhotoCaptureFrame managedFrame;
+        public System.IntPtr unmanagedFrame;
+
+        private System.IntPtr bufPtr;
 
         public CaptureFrameInstance(PhotoCaptureFrame managedFrame, Resolution res)
         {
             this.managedFrame = managedFrame;
+
             FiducialSystem.image_u8 temp = new FiducialSystem.image_u8();
             temp.width = res.width;
             temp.height = res.height;
-            temp.stride = res.width * 4;
-            temp.buf = this.managedFrame.GetUnsafePointerToBuffer();
+            temp.stride = res.width;
+            temp.buf = Marshal.AllocHGlobal(temp.height * temp.stride);
+
+            List<byte> managedBuffer = new List<byte>();
+            managedFrame.CopyRawImageDataIntoBuffer(managedBuffer);
+            byte[] transformedImg = new byte[temp.width * temp.height];
+            ProcessImage(managedBuffer.ToArray(), temp.width, temp.height, transformedImg);
+
+            Marshal.Copy(transformedImg, 0, temp.buf, transformedImg.Length);
             unmanagedFrame = Marshal.AllocHGlobal(Marshal.SizeOf(temp));
             Marshal.StructureToPtr<FiducialSystem.image_u8>(temp, unmanagedFrame, false);
+
+
+            this.bufPtr = temp.buf;
+            FiducialSystem.instance.UpdateSpacePinning(this);
         }
+
+        // Takes the BGRA32 image data in buffer, and outputs to transformed the grayscale (1 byte per pixel)
+        // image data
+        private void ProcessImage(byte[] buffer, int width, int height, byte[] transformed)
+        {
+            if (buffer.Length != transformed.Length * 4)
+            {
+                Debug.LogError("Invalid buffer size supplied!");
+                return;
+            }
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    // Gray = (b + g + g + r) / 4
+                    byte gray = (byte)((buffer[(y * width * 4) + (4 * x) + 0] +
+                                        buffer[(y * width * 4) + (4 * x) + 1] +
+                                        buffer[(y * width * 4) + (4 * x) + 1] +
+                                        buffer[(y * width * 4) + (4 * x) + 2]) / 4);
+
+                    transformed[y * width + x] = gray;
+                }
+            }
+        }
+        
 
         ~CaptureFrameInstance()
         {
             Marshal.FreeHGlobal(unmanagedFrame);
+            Marshal.FreeHGlobal(this.bufPtr);
         }
     }
 }
