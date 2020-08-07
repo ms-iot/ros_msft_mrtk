@@ -146,7 +146,7 @@ public class FiducialSystem : MonoBehaviour
             Debug.Log(string.Format("Location in map frame is currently: {0}, {1}, {2}", loc.Value.x, loc.Value.y, loc.Value.z));
         }
 
-        //int res = image_u8_write_pnm(captureFrame.unmanagedFrame, "m:\\debugImg\\garboogle.pnm");
+        int res = image_u8_write_pnm(captureFrame.unmanagedFrame, "m:\\debugImg\\garboogle.pnm");
 
         IntPtr nativeDetectionsHandle = apriltag_detector_detect(detector, captureFrame.unmanagedFrame);
 

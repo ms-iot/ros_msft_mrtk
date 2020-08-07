@@ -9,6 +9,8 @@ using UnityEngine.Windows.WebCam;
 
 public class WebcamSystem : MonoBehaviour
 {
+    public ComputeShader BGRAtoGrayscaleShader;
+
     private static WebcamSystem instance;
 
     private bool ready = false;
@@ -65,7 +67,7 @@ public class WebcamSystem : MonoBehaviour
         if (result.success)
         {
             Debug.Log("SNAP!!!");
-            currFrame = new CaptureFrameInstance(frame, cameraResolution);
+            currFrame = new CaptureFrameInstance(frame, cameraResolution, BGRAtoGrayscaleShader);
         } else
         {
             Debug.LogError("Unable to take photo!");
@@ -102,6 +104,7 @@ public class WebcamSystem : MonoBehaviour
         {
             ready = false;
             captureObject.StopPhotoModeAsync(OnStoppedPhotoMode);
+            CaptureFrameInstance.DisposeBuffers();
         }
     }
 
@@ -116,34 +119,105 @@ public class WebcamSystem : MonoBehaviour
         public PhotoCaptureFrame managedFrame;
         public System.IntPtr unmanagedFrame;
 
-        private System.IntPtr bufPtr;
+        private System.IntPtr _bufPtr;
 
-        public CaptureFrameInstance(PhotoCaptureFrame managedFrame, Resolution res)
+        // reuse buffers from frame to frame
+        private static ComputeBuffer _inputBuffer;
+        private static ComputeBuffer _outputBuffer;
+
+        public static void DisposeBuffers()
         {
+            if (_inputBuffer != null)
+            {
+                _inputBuffer.Dispose();
+            }
+            if (_outputBuffer != null)
+            {
+                _outputBuffer.Dispose();
+            }
+        }
+
+        public CaptureFrameInstance(PhotoCaptureFrame managedFrame, Resolution res, ComputeShader sh)
+        {
+            /*
+            uint[] Intest = { 0x6a6a6a6a, 0x7e7e7e7e, 0x8b8b8b8b, 0x9c9c9c9c };
+            uint[] Outtest = { 0 };
+
+            for (int i = 0; i < 4; i++)
+            {
+                uint b = Intest[i] >> 24;
+                uint g = (Intest[i] & 0x00ff0000) >> 16;
+                uint r = (Intest[i] & 0x0000ff00) >> 8;
+
+                Outtest[0] |= (((r + g + g + b) / 4) << (8 * (3 - (i % 4))));
+
+            }
+
+            Debug.Log(String.Format("Test shader on cpu: out bytes are {0:X}", Outtest[0])); */
+
+
+
             this.managedFrame = managedFrame;
 
+            // build up image struct, copy it to unmanaged memory
             FiducialSystem.image_u8 temp = new FiducialSystem.image_u8();
             temp.width = res.width;
             temp.height = res.height;
-            temp.stride = res.width;
+            temp.stride = res.width;  // TASK: implement stride optimization 
+                                      // in cases where img size not cache-optimized
             temp.buf = Marshal.AllocHGlobal(temp.height * temp.stride);
+            _bufPtr = temp.buf;  // stored for easy deallocation later 
 
+            // Obtain managed BGRA image bytes, allocate space for 
+            // one-fourth-sized grayscale image bytes (transformedImage)
             List<byte> managedBuffer = new List<byte>();
             managedFrame.CopyRawImageDataIntoBuffer(managedBuffer);
             byte[] transformedImg = new byte[temp.width * temp.height];
-            ProcessImage(managedBuffer.ToArray(), temp.width, temp.height, transformedImg);
 
+
+            // Do the transformation from BGRA to grayscale, using hardware acceleration if possible
+            int kernelHandle = sh.FindKernel("ProcessImage");
+            uint groupSize;
+            sh.GetKernelThreadGroupSizes(kernelHandle, out groupSize, out _, out _);
+            if ((temp.width * temp.height) % groupSize == 0)
+            {
+                if (_inputBuffer == null)
+                {
+                    _inputBuffer = new ComputeBuffer(temp.width * temp.height, sizeof(uint));  // bgra values; 4 bytes per pixel
+                } 
+                if (_outputBuffer == null)
+                {
+                    _outputBuffer = new ComputeBuffer(temp.width * temp.height / 4, sizeof(uint));  // grayscale values; 1 byte per pixel
+                }
+
+                _inputBuffer.SetData(managedBuffer.ToArray());
+                sh.SetBuffer(kernelHandle, "In", _inputBuffer);
+                sh.SetBuffer(kernelHandle, "Out", _outputBuffer);
+                // each group processes groupSize "clumps" of four pixels
+                int threadGroupCount = temp.width * temp.height / (int)groupSize / 4;
+                sh.Dispatch(kernelHandle, threadGroupCount, 1, 1);
+                _outputBuffer.GetData(transformedImg);
+
+            } else
+            {
+                Debug.LogError("Unusual resolution used-- cannot hardware accelerate! Defaulting to iterative approach...");
+                
+                ProcessImage(managedBuffer.ToArray(), temp.width, temp.height, transformedImg);
+            }
+
+            // Copy the processed image to unmanaged memory
             Marshal.Copy(transformedImg, 0, temp.buf, transformedImg.Length);
+            // Allocate the unmanaged image struct
             unmanagedFrame = Marshal.AllocHGlobal(Marshal.SizeOf(temp));
             Marshal.StructureToPtr<FiducialSystem.image_u8>(temp, unmanagedFrame, false);
 
 
-            this.bufPtr = temp.buf;
+            
             FiducialSystem.instance.UpdateSpacePinning(this);
         }
 
         // Takes the BGRA32 image data in buffer, and outputs to transformed the grayscale (1 byte per pixel)
-        // image data
+        // image data. Performed iteratively, use compute shader if possible!
         private void ProcessImage(byte[] buffer, int width, int height, byte[] transformed)
         {
             if (buffer.Length != transformed.Length * 4)
@@ -171,7 +245,7 @@ public class WebcamSystem : MonoBehaviour
         ~CaptureFrameInstance()
         {
             Marshal.FreeHGlobal(unmanagedFrame);
-            Marshal.FreeHGlobal(this.bufPtr);
+            Marshal.FreeHGlobal(_bufPtr);
         }
     }
 }
