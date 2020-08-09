@@ -110,11 +110,12 @@ The fiducial system is for processing camera images to locate the robot in space
 
 ``` batch
 cd c:\opt\vcpkg
-git remote set origin https://github.com/ooeygui/vcpkg
+git remote set-url origin https://github.com/ooeygui/vcpkg
 git pull
 bootstrap-vcpkg.bat
 vcpkg install apriltag:x64-windows
 ```
+
 
 # Bootstrapping your Mixed Reality Toolkit Application
 
