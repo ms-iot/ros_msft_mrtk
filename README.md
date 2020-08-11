@@ -114,6 +114,7 @@ git remote set origin https://github.com/ooeygui/vcpkg
 git pull
 bootstrap-vcpkg.bat
 vcpkg install apriltag:x64-windows
+vcpkg install opencv-c-wrapper:x64-windows
 ```
 
 # Bootstrapping your Mixed Reality Toolkit Application
