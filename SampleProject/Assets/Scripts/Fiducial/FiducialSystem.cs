@@ -41,8 +41,22 @@ public class FiducialSystem : MonoBehaviour
     [DllImport("apriltags-umich")]
     private static extern int image_u8_write_pnm(IntPtr image, string s);
 
-    
+
     #endregion // Apriltag P/Invoke
+
+
+    #region Calibration P/Invoke
+
+    [DllImport("opencv-c-wrapper")]
+    private static extern int supply_calibration_image(IntPtr img);
+
+    [DllImport("opencv-c-wrapper")]
+    private static extern int clear_calibration_images();
+
+    [DllImport("opencv-c-wrapper")]
+    private static extern int calibrate(float squareSize, out Intrensics intrensics);
+
+    #endregion  // Calibration P/Invoke
 
 
     #region Apriltag Structures
@@ -109,6 +123,20 @@ public class FiducialSystem : MonoBehaviour
 
     #endregion // Apriltag Structures
 
+
+    #region Calibration Structures
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Intrensics
+    {
+        public double fx;
+        public double fy;
+        public double cx;
+        public double cy;
+    }
+
+    #endregion  // Calibration Structures
+
     public static FiducialSystem instance;
 
     private TransformListener listener;
@@ -136,6 +164,21 @@ public class FiducialSystem : MonoBehaviour
             Debug.LogWarning("Duplicate FiducialSystem tried to initialize in scene on gameobject " + this.gameObject + "; Destroying self!");
             Destroy(this);
         }
+    }
+
+    void Update()
+    {
+#if UNITY_EDITOR
+        if (UnityEditor.EditorApplication.isPlaying == false)
+        {
+            this.Shutdown();
+        }
+#endif
+    }
+
+    private void OnApplicationQuit()
+    {
+        this.Shutdown();
     }
 
     public void UpdateSpacePinning(WebcamSystem.CaptureFrameInstance captureFrame)
@@ -169,20 +212,7 @@ public class FiducialSystem : MonoBehaviour
         nativeDetectionsHandle = IntPtr.Zero;
     }
 
-    void Update()
-    {
-#if UNITY_EDITOR
-        if (UnityEditor.EditorApplication.isPlaying == false)
-        {
-            this.Shutdown();
-        }
-#endif
-    }
-
-    private void OnApplicationQuit()
-    {
-        this.Shutdown();
-    }
+    
 
     private void Shutdown()
     {

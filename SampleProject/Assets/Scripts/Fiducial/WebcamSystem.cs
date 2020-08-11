@@ -32,7 +32,21 @@ public class WebcamSystem : MonoBehaviour
         
     }
 
-    
+    // Update is called once per frame
+    void Update()
+    {
+#if UNITY_EDITOR
+        if (UnityEditor.EditorApplication.isPlaying == false)
+        {
+            this.Shutdown();
+        }
+#endif
+    }
+
+    private void OnApplicationQuit()
+    {
+        this.Shutdown();
+    }
 
     void OnPhotoCaptureCreated(PhotoCapture capture)
     {
@@ -82,22 +96,6 @@ public class WebcamSystem : MonoBehaviour
         ready = false;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-#if UNITY_EDITOR
-        if (UnityEditor.EditorApplication.isPlaying == false)
-        {
-            this.Shutdown();
-        }
-#endif
-    }
-
-    private void OnApplicationQuit()
-    {
-        this.Shutdown();
-    }
-
     private void Shutdown()
     {
         if (captureObject != null && ready)
@@ -109,14 +107,14 @@ public class WebcamSystem : MonoBehaviour
     }
 
     /// <summary>
-    /// As an optimization, we skip copying the image data (buf) by pointing to the
-    /// buffer given to the managed PhotoCaptureFrame. Since the PhotoCaptureFrame is managed,
-    /// we must avoid premature garbage collection of the managed buffer by 
-    /// stashing a reference in the object
+    /// Wrapper for unmanaged copy of image_u8 in memory.
+    /// Data is deallocated upon this object going out of scope.
+    /// It is the user's responsibility to keep an instance of 
+    /// CaptureFrameInstance in-scope until after all native calls
+    /// are done using it.
     /// </summary>
     public class CaptureFrameInstance
     {
-        public PhotoCaptureFrame managedFrame;
         public System.IntPtr unmanagedFrame;
 
         private System.IntPtr _bufPtr;
@@ -139,26 +137,6 @@ public class WebcamSystem : MonoBehaviour
 
         public CaptureFrameInstance(PhotoCaptureFrame managedFrame, Resolution res, ComputeShader sh)
         {
-            /*
-            uint[] Intest = { 0x6a6a6a6a, 0x7e7e7e7e, 0x8b8b8b8b, 0x9c9c9c9c };
-            uint[] Outtest = { 0 };
-
-            for (int i = 0; i < 4; i++)
-            {
-                uint b = Intest[i] >> 24;
-                uint g = (Intest[i] & 0x00ff0000) >> 16;
-                uint r = (Intest[i] & 0x0000ff00) >> 8;
-
-                Outtest[0] |= (((r + g + g + b) / 4) << (8 * (3 - (i % 4))));
-
-            }
-
-            Debug.Log(String.Format("Test shader on cpu: out bytes are {0:X}", Outtest[0])); */
-
-
-
-            this.managedFrame = managedFrame;
-
             // build up image struct, copy it to unmanaged memory
             FiducialSystem.image_u8 temp = new FiducialSystem.image_u8();
             temp.width = res.width;
@@ -211,8 +189,6 @@ public class WebcamSystem : MonoBehaviour
             unmanagedFrame = Marshal.AllocHGlobal(Marshal.SizeOf(temp));
             Marshal.StructureToPtr<FiducialSystem.image_u8>(temp, unmanagedFrame, false);
 
-
-            
             FiducialSystem.instance.UpdateSpacePinning(this);
         }
 
