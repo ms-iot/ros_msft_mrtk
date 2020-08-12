@@ -8,139 +8,16 @@ using System.Runtime.InteropServices;
 using UnityEditor.Experimental.GraphView;
 using System.Text.RegularExpressions;
 
+
 public class FiducialSystem : MonoBehaviour
 {
-    #region Apriltag P/Invoke
-
-    [DllImport("apriltags-umich")]
-    private static extern IntPtr apriltag_detector_create();
-
-    [DllImport("apriltags-umich")]
-    private static extern void apriltag_detector_destroy(IntPtr detector);
-
-    [DllImport("apriltags-umich")]
-    private static extern IntPtr tagStandard41h12_create();
-
-    [DllImport("apriltags-umich")]
-    private static extern void tagStandard41h12_destroy(IntPtr family);
-
-    [DllImport("apriltags-umich")]
-    private static extern void apriltag_detector_add_family(IntPtr detector, IntPtr family);
-
-    [DllImport("apriltags-umich")]
-    private static extern IntPtr apriltag_detector_detect(IntPtr detector, IntPtr img);
-
-    [DllImport("apriltags-umich")]
-    private static extern void apriltag_detections_destroy(IntPtr detections);
-
-    [DllImport("apriltags-umich")]
-    private static extern double estimate_tag_pose(in AprilTagDetectionInfo info, out AprilTagPose pose);
 
 
-    //debug
-    [DllImport("apriltags-umich")]
-    private static extern int image_u8_write_pnm(IntPtr image, string s);
-
-
-    #endregion // Apriltag P/Invoke
-
-
-    #region Calibration P/Invoke
-
-    [DllImport("opencv-c-wrapper")]
-    private static extern int supply_calibration_image(IntPtr img);
-
-    [DllImport("opencv-c-wrapper")]
-    private static extern int clear_calibration_images();
-
-    [DllImport("opencv-c-wrapper")]
-    private static extern int calibrate(float squareSize, out Intrensics intrensics);
-
-    #endregion  // Calibration P/Invoke
-
-
-    #region Apriltag Structures
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct ZArray
-    {
-        public ulong el_sz;
-        public int size;
-        public int alloc;
-        public IntPtr data;
-    }
-
-    
-    [StructLayout(LayoutKind.Sequential)]
-    private unsafe struct ApriltagDetection
-    {
-        public IntPtr family;
-        public int id;
-        public int hamming;
-        public float decision_margin;
-
-        public Matd* H;
-
-        public fixed double c[2];
-        public fixed double p[8];
-    } 
-
-    [StructLayout(LayoutKind.Sequential)]
-    private unsafe struct Matd
-    {
-        public uint nrows;
-        public uint ncols;
-        public double* data;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct AprilTagDetectionInfo
-    {
-        public IntPtr det;
-        public double tagsize;
-        public double fx;
-        public double fy;
-        public double cx;
-        public double cy;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private unsafe struct AprilTagPose
-    {
-        public Matd* R;
-        public Matd* t;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct image_u8
-    {
-        public int width;
-        public int height;
-        public int stride;
-
-        public IntPtr buf;
-    }
-
-    #endregion // Apriltag Structures
-
-
-    #region Calibration Structures
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Intrensics
-    {
-        public double fx;
-        public double fy;
-        public double cx;
-        public double cy;
-    }
-
-    #endregion  // Calibration Structures
+    public bool DEBUG_DUMP_IMAGE;
 
     public static FiducialSystem instance;
 
     private TransformListener listener;
-
     private IntPtr detector;
     private IntPtr family;
     private ZArray detections;
@@ -154,10 +31,11 @@ public class FiducialSystem : MonoBehaviour
         if (instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(this);
             RclCppDotnet.Init();
             this.listener = new TransformListener();
-            detector = apriltag_detector_create();
-            family = tagStandard41h12_create();
+            detector = NativeFiducialFunctions.apriltag_detector_create();
+            family = NativeFiducialFunctions.tagStandard41h12_create();
             active = true;
         } else
         {
@@ -188,10 +66,13 @@ public class FiducialSystem : MonoBehaviour
         {
             Debug.Log(string.Format("Location in map frame is currently: {0}, {1}, {2}", loc.Value.x, loc.Value.y, loc.Value.z));
         }
-
-        int res = image_u8_write_pnm(captureFrame.unmanagedFrame, "m:\\debugImg\\garboogle.pnm");
-
-        IntPtr nativeDetectionsHandle = apriltag_detector_detect(detector, captureFrame.unmanagedFrame);
+        
+        if (DEBUG_DUMP_IMAGE)
+        {
+            int res = NativeFiducialFunctions.image_u8_write_pnm(captureFrame.unmanagedFrame, "m:\\debugImg\\garboogle.pnm");
+        }
+        
+        IntPtr nativeDetectionsHandle = NativeFiducialFunctions.apriltag_detector_detect(detector, captureFrame.unmanagedFrame);
 
         detections = Marshal.PtrToStructure<ZArray>(nativeDetectionsHandle);
 
@@ -205,10 +86,10 @@ public class FiducialSystem : MonoBehaviour
             //info.cx = blah
             //info.cy = blah
             AprilTagPose pose = new AprilTagPose();
-            double err = estimate_tag_pose(in info, out pose);
+            double err = NativeFiducialFunctions.estimate_tag_pose(in info, out pose);
 
         }
-        apriltag_detections_destroy(nativeDetectionsHandle);
+        NativeFiducialFunctions.apriltag_detections_destroy(nativeDetectionsHandle);
         nativeDetectionsHandle = IntPtr.Zero;
     }
 
@@ -219,8 +100,8 @@ public class FiducialSystem : MonoBehaviour
         if (active)
         {
             RclCppDotnet.Shutdown();
-            apriltag_detector_destroy(detector);
-            tagStandard41h12_destroy(family);
+            NativeFiducialFunctions.apriltag_detector_destroy(detector);
+            NativeFiducialFunctions.tagStandard41h12_destroy(family);
             active = false;
         }
     }
