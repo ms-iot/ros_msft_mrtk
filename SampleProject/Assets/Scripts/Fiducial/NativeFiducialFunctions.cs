@@ -33,7 +33,7 @@ public static class NativeFiducialFunctions
     public static extern double estimate_tag_pose(in AprilTagDetectionInfo info, out AprilTagPose pose);
 
 
-    //debug
+    // debug
     [DllImport("apriltags-umich")]
     public static extern int image_u8_write_pnm(IntPtr image, string s);
 
@@ -43,13 +43,13 @@ public static class NativeFiducialFunctions
 
     #region Calibration P/Invoke
 
-    [DllImport("opencv-c-wrapper")]
+    [DllImport("ros-msft-mrtk-native")]
     public static extern int supply_calibration_image(IntPtr img);
 
-    [DllImport("opencv-c-wrapper")]
+    [DllImport("ros-msft-mrtk-native")]
     public static extern int clear_calibration_images();
 
-    [DllImport("opencv-c-wrapper")]
+    [DllImport("ros-msft-mrtk-native")]
     public static extern int calibrate(float squareSize, out Intrensics intrensics);
 
     #endregion  // Calibration P/Invoke

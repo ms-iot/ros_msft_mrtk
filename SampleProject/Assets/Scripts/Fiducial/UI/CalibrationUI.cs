@@ -53,7 +53,7 @@ of a square on your printed checkerboard pattern and input it to the calibration
         WebcamSystem.instance.CapturePhoto(OnCapturedPhotoToMemory);
     }
 
-    public void DoCalibration()
+    public async void DoCalibration()
     {
         if (calibImgs.Count < MINIMUM_CALIBRATION_IMGS)
         {
@@ -61,18 +61,16 @@ of a square on your printed checkerboard pattern and input it to the calibration
         } else
         {
             // Calibration will take a noticeable amount of time, so put it in its own thread
-            TaskCompletionSource<Intrensics> tcs = new TaskCompletionSource<Intrensics>();
-            Task<Intrensics> task = tcs.Task;
-            Task.Factory.StartNew(() =>
+            Task<Intrensics> task = Task.Run(() =>
             {
                 Intrensics intr = new Intrensics();
                 NativeFiducialFunctions.calibrate(squareSize, out intr);
-                tcs.SetResult(intr);
+                return intr;
             });
 
             // Start UI feedback indicating work is being done...
             
-            if (!CameraIntrensicsHelper.WriteIntrensics(task.Result))
+            if (!CameraIntrensicsHelper.WriteIntrensics(await task))
             {
                 Debug.LogError("Failed to write intrensics to disk!!");
             }
@@ -93,7 +91,11 @@ of a square on your printed checkerboard pattern and input it to the calibration
             int newCount = NativeFiducialFunctions.supply_calibration_image(currFrame.unmanagedFrame);
             if (newCount > prevCount)
             {
+                Debug.Log("Good picture!");
                 calibImgs.Add(currFrame);
+            } else
+            {
+                Debug.Log("Couldn't detect the checkerboard. Please try again.");
             }
         }
         else
@@ -105,6 +107,10 @@ of a square on your printed checkerboard pattern and input it to the calibration
 
     private void Shutdown()
     {
-        NativeFiducialFunctions.clear_calibration_images();
+        if (calibImgs.Count > 0)
+        {
+            calibImgs.Clear();
+            NativeFiducialFunctions.clear_calibration_images();
+        }
     }
 }

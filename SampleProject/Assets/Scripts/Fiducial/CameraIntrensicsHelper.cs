@@ -8,8 +8,16 @@ public static class CameraIntrensicsHelper
 {
     private static readonly string RELATIVE_SAVE_PATH = "/Intrensics.json";
 
+    private static Intrensics? intr;
+
     public static Intrensics? ReadIntrensics()
     {
+        // Avoid file i/o if possible, using cached value
+        if (intr.HasValue)
+        {
+            return intr.Value;
+        }
+
         try
         {
             StreamReader reader = new StreamReader(Application.persistentDataPath +
@@ -20,7 +28,9 @@ public static class CameraIntrensicsHelper
                 return null;
             }
 
-            return JsonUtility.FromJson<Intrensics>(json);
+            Intrensics output = JsonUtility.FromJson<Intrensics>(json);
+            intr = output;
+            return output;
         } catch (IOException e)
         {
             Debug.LogError("File failed to be read:");
@@ -46,6 +56,7 @@ public static class CameraIntrensicsHelper
             return false;
         }
 
+        intr = intrensics;
         return true;
     }
 
