@@ -23,6 +23,9 @@ rem Apriltags
 xcopy /y /c C:\opt\vcpkg\buildtrees\apriltag\x64-windows-rel\*.dll %AssetsFolder%
 xcopy /y /c C:\opt\vcpkg\buildtrees\apriltag\x64-windows-rel\*.pdb %AssetsFolder%
 
+xcopy /y /c C:\opt\vcpkg\buildtrees\ros-msft-mrtk-native\x64-windows-rel\*.dll %AssetsFolder%
+xcopy /y /c C:\opt\vcpkg\buildtrees\ros-msft-mrtk-native\x64-windows-rel\*.pdb %AssetsFolder%
+
 
 for /R "%ROS2DOTNET_install%\lib\" %%f in (*_msgs_assemblies.*) do  xcopy  /y /c %%f %AssetsFolder%
 

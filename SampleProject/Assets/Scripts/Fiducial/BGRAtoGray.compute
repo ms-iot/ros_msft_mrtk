@@ -1,0 +1,48 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel ProcessImage
+
+// Unfortunately, hlsl doesn't support byte types 
+// so we will need to do some bitshifting to manipulate 
+// at the byte level
+Buffer<uint> In;
+RWBuffer<uint> Out;
+
+// each thread processes four pixels (since the Out uint is 4 pixels)
+[numthreads(64,1,1)]
+void ProcessImage (uint3 id : SV_DispatchThreadID)
+{
+
+    Out[id.x] = 0x00000000;  // clear buffer from last operation
+
+    // pull bytes out of BGRA uint
+    uint b = In[id.x * 4] >> 24;
+    uint g = (In[id.x * 4] & 0x00ff0000) >> 16;
+    uint r = (In[id.x * 4] & 0x0000ff00) >> 8;
+    //   a =  In[id.x] & 0x000000ff; not used
+
+    Out[id.x] |= (((r + g + g + b) / 4) << 0);  // paste byte into proper portion of uint
+
+    // pull bytes out of BGRA uint
+    b = In[id.x * 4 + 1] >> 24;
+    g = (In[id.x * 4 + 1] & 0x00ff0000) >> 16;
+    r = (In[id.x * 4 + 1] & 0x0000ff00) >> 8;
+    //   a =  In[id.x] & 0x000000ff; not used
+
+    Out[id.x] |= (((r + g + g + b) / 4) << 8);  // paste byte into proper portion of uint
+
+    // pull bytes out of BGRA uint
+    b = In[id.x * 4 + 2] >> 24;
+    g = (In[id.x * 4 + 2] & 0x00ff0000) >> 16;
+    r = (In[id.x * 4 + 2] & 0x0000ff00) >> 8;
+    //   a =  In[id.x] & 0x000000ff; not used
+
+    Out[id.x] |= (((r + g + g + b) / 4) << 16);  // paste byte into proper portion of uint
+
+    // pull bytes out of BGRA uint
+    b = In[id.x * 4 + 3] >> 24;
+    g = (In[id.x * 4 + 3] & 0x00ff0000) >> 16;
+    r = (In[id.x * 4 + 3] & 0x0000ff00) >> 8;
+    //   a =  In[id.x] & 0x000000ff; not used
+
+    Out[id.x] |= (((r + g + g + b) / 4) << 24);  // paste byte into proper portion of uint
+}

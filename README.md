@@ -52,6 +52,7 @@ Create `c:\ws\r2_dotnet_ws\env.bat`:
 set "ChocolateyInstall=c:\opt\chocolatey"
 set "PATH=c:\opt\chocolatey\bin;C:\opt\python37amd64\;C:\opt\python37amd64\Scripts;%PATH%"
 set PATH=C:\opt\python37amd64\DLLs;%PATH%
+set CMAKE_PREFIX_PATH=C:\opt\rosdeps\x64\include;%CMAKE_PREFIX_PATH%
 ```
 
 ``` json
@@ -114,6 +115,7 @@ git remote set-url origin https://github.com/ooeygui/vcpkg
 git pull
 bootstrap-vcpkg.bat
 vcpkg install apriltag:x64-windows
+vcpkg install opencv-c-wrapper:x64-windows
 ```
 
 
