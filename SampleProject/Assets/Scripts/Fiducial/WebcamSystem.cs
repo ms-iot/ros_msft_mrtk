@@ -64,7 +64,7 @@ public partial class WebcamSystem : MonoBehaviour
         captureObject = capture;
         // takes the highest resolution image supported
         cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
-        Debug.Log(string.Format("Initializing camera with resolution: {0}x{1}", cameraResolution.width, cameraResolution.height));
+        Debug.Log(String.Format("Initializing camera with resolution: {0}x{1}", cameraResolution.width, cameraResolution.height));
 
         CameraParameters c = new CameraParameters();
         c.hologramOpacity = 0.0f;

@@ -19,9 +19,11 @@ public partial class WebcamSystem
         private System.IntPtr _bufPtr;
 
         // reuse buffers from frame to frame
+        // assumes resolution stays constant throughout
+        // lifetime of program
         private static ComputeBuffer _inputBuffer;
         private static ComputeBuffer _outputBuffer;
-        private static Object bufLock;
+        private static Object bufLock = new Object();
 
         public static void DisposeBuffers()
         {

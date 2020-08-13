@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ROS2.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -53,4 +54,5 @@ public static class NativeFiducialFunctions
     public static extern int calibrate(float squareSize, out Intrensics intrensics);
 
     #endregion  // Calibration P/Invoke
+
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using RosSharp.Urdf;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -64,7 +65,11 @@ of a square on your printed checkerboard pattern and input it to the calibration
             Task<Intrensics> task = Task.Run(() =>
             {
                 Intrensics intr = new Intrensics();
-                NativeFiducialFunctions.calibrate(squareSize, out intr);
+                PluginLoadUtil.PerformPluginAction(() => 
+                {
+                    NativeFiducialFunctions.calibrate(squareSize, out intr);
+                });
+                
                 return intr;
             });
 
@@ -88,7 +93,11 @@ of a square on your printed checkerboard pattern and input it to the calibration
             Debug.Log("SNAP!!!");
             WebcamSystem.CaptureFrameInstance currFrame = new WebcamSystem.CaptureFrameInstance(frame);
             int prevCount = calibImgs.Count;
-            int newCount = NativeFiducialFunctions.supply_calibration_image(currFrame.unmanagedFrame);
+            int newCount = PluginLoadUtil.PerformPluginAction<int>(() => 
+            { 
+                return NativeFiducialFunctions.supply_calibration_image(currFrame.unmanagedFrame);
+            });
+                
             if (newCount > prevCount)
             {
                 Debug.Log("Good picture!");
@@ -110,7 +119,10 @@ of a square on your printed checkerboard pattern and input it to the calibration
         if (calibImgs.Count > 0)
         {
             calibImgs.Clear();
-            NativeFiducialFunctions.clear_calibration_images();
+            PluginLoadUtil.PerformPluginAction(() =>
+            {
+                NativeFiducialFunctions.clear_calibration_images();
+            });
         }
     }
 }
