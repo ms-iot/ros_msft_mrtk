@@ -23,6 +23,19 @@ public class FiducialSystem : MonoBehaviour
 
     private bool active = false;
 
+
+    private void Awake()
+    {
+#if UNITY_EDITOR
+        string currentPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Process);
+        string dllPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "Assets" + Path.DirectorySeparatorChar + "Plugins";
+        if (currentPath.Contains(dllPath) == false)
+        {
+            Environment.SetEnvironmentVariable("PATH", currentPath + Path.PathSeparator + dllPath, EnvironmentVariableTarget.Process);
+        }
+#endif
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,15 +45,14 @@ public class FiducialSystem : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(this);
 
-            PluginLoadUtil.PerformPluginAction(() =>
-            {
-                RclCppDotnet.Init();
-                this.listener = new TransformListener();
-                this.detector = NativeFiducialFunctions.apriltag_detector_create();
-                this.family = NativeFiducialFunctions.tagStandard41h12_create();
-            });
+            RclCppDotnet.Init();
+            this.listener = new TransformListener();
+            this.detector = NativeFiducialFunctions.apriltag_detector_create();
+            this.family = NativeFiducialFunctions.tagStandard41h12_create();
 
             active = true;
+
+
         } else
         {
             Debug.LogWarning("Duplicate FiducialSystem tried to initialize in scene on gameobject " + this.gameObject + "; Destroying self!");
@@ -65,13 +77,8 @@ public class FiducialSystem : MonoBehaviour
 
     public void UpdateSpacePinning(WebcamSystem.CaptureFrameInstance captureFrame)
     {
-        TfVector3? loc = PluginLoadUtil.PerformPluginAction<TfVector3?>((object[] args) => 
-        {
-            string s1 = args[0] as string;
-            string s2 = args[1] as string;
-            return listener.LookupTranslation(s1, s2);
-        }, new object[] { "base_link", "map" });
 
+        TfVector3? loc = listener.LookupTranslation("base_link", "map");
 
         if (loc != null)
         {
@@ -80,16 +87,10 @@ public class FiducialSystem : MonoBehaviour
         
         if (DEBUG_DUMP_IMAGE)
         {
-            int res = PluginLoadUtil.PerformPluginAction<int>(() => 
-            {
-                return NativeFiducialFunctions.image_u8_write_pnm(captureFrame.unmanagedFrame, "m:\\debugImg\\garboogle.pnm");
-            });
+            int res = NativeFiducialFunctions.image_u8_write_pnm(captureFrame.unmanagedFrame, "m:\\debugImg\\garboogle.pnm");
         }
 
-        IntPtr nativeDetectionsHandle = PluginLoadUtil.PerformPluginAction<IntPtr>(() => 
-        { 
-            return NativeFiducialFunctions.apriltag_detector_detect(detector, captureFrame.unmanagedFrame);
-        });
+        IntPtr nativeDetectionsHandle = NativeFiducialFunctions.apriltag_detector_detect(detector, captureFrame.unmanagedFrame);
 
         detections = Marshal.PtrToStructure<ZArray>(nativeDetectionsHandle);
 
@@ -103,18 +104,11 @@ public class FiducialSystem : MonoBehaviour
             //info.cx = blah
             //info.cy = blah
             AprilTagPose pose = new AprilTagPose();
-            double err = PluginLoadUtil.PerformPluginAction<double>(() => 
-            {
-                return NativeFiducialFunctions.estimate_tag_pose(in info, out pose);
-            });
-
+            double err = NativeFiducialFunctions.estimate_tag_pose(in info, out pose);
         }
 
-        PluginLoadUtil.PerformPluginAction(() => 
-        {
-            NativeFiducialFunctions.apriltag_detections_destroy(nativeDetectionsHandle);
-        });
-        
+        NativeFiducialFunctions.apriltag_detections_destroy(nativeDetectionsHandle);
+
         nativeDetectionsHandle = IntPtr.Zero;
     }
 
@@ -124,13 +118,10 @@ public class FiducialSystem : MonoBehaviour
     {
         if (active)
         {
-            PluginLoadUtil.PerformPluginAction(() => 
-            {
-                RclCppDotnet.Shutdown();
-                NativeFiducialFunctions.apriltag_detector_destroy(detector);
-                NativeFiducialFunctions.tagStandard41h12_destroy(family);
-            });
-            
+            RclCppDotnet.Shutdown();
+            NativeFiducialFunctions.apriltag_detector_destroy(detector);
+            NativeFiducialFunctions.tagStandard41h12_destroy(family);
+
             active = false;
         }
     }

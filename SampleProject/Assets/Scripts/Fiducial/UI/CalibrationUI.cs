@@ -9,14 +9,20 @@ using UnityEngine.Windows.WebCam;
 public class CalibrationUI : MonoBehaviour
 {
     public CalibrateButtonController calibButton;
+    public GameObject loadingComet;
     public float squareSize;
+    [Range(15, 50)]
+    public int MINIMUM_CALIBRATION_IMGS = 15;
+    public bool DEBUG;
 
     private Resolution res;
     private Shader shader;
 
+    // We must store the captured frames until the native side is done
+    // since their buffers are shared
     private List<WebcamSystem.CaptureFrameInstance> calibImgs;
 
-    private readonly int MINIMUM_CALIBRATION_IMGS = 15;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -31,11 +37,17 @@ public class CalibrationUI : MonoBehaviour
 of a square on your printed checkerboard pattern and input it to the calibrationUI script: " + this);
         }
 
+        loadingComet.SetActive(false);
         calibImgs = new List<WebcamSystem.CaptureFrameInstance>();
     }
 
     void Update()
     {
+        if (DEBUG && Input.GetKeyDown(KeyCode.P))
+        {
+            TakePicture();
+        }
+
 #if UNITY_EDITOR
         if (UnityEditor.EditorApplication.isPlaying == false)
         {
@@ -62,26 +74,29 @@ of a square on your printed checkerboard pattern and input it to the calibration
         } else
         {
             // Calibration will take a noticeable amount of time, so put it in its own thread
+
             Task<Intrensics> task = Task.Run(() =>
             {
+                Debug.Log("Dispatching background thread to perform calibration!");
                 Intrensics intr = new Intrensics();
-                PluginLoadUtil.PerformPluginAction(() => 
-                {
-                    NativeFiducialFunctions.calibrate(squareSize, out intr);
-                });
-                
+                int success = NativeFiducialFunctions.calibrate(squareSize, out intr);
                 return intr;
             });
 
             // Start UI feedback indicating work is being done...
-            
-            if (!CameraIntrensicsHelper.WriteIntrensics(await task))
+            loadingComet.SetActive(true);
+
+            Intrensics foundIntr = await task;
+            Debug.Log(string.Format("Intrensics recieved; fx:{0} fy:{1} cx:{2} cy:{3}", foundIntr.fx, foundIntr.fy, foundIntr.cx, foundIntr.cy));
+
+            if (!CameraIntrensicsHelper.WriteIntrensics(foundIntr))
             {
                 Debug.LogError("Failed to write intrensics to disk!!");
             }
 
             // End UI feedback/transition scene
-
+            loadingComet.SetActive(false);  // Not strictly needed, since we change scenes
+            this.Shutdown();  // Clear the unmanaged memory!
             SceneManager.LoadScene("RobotScene");
         }
     }
@@ -93,14 +108,11 @@ of a square on your printed checkerboard pattern and input it to the calibration
             Debug.Log("SNAP!!!");
             WebcamSystem.CaptureFrameInstance currFrame = new WebcamSystem.CaptureFrameInstance(frame);
             int prevCount = calibImgs.Count;
-            int newCount = PluginLoadUtil.PerformPluginAction<int>(() => 
-            { 
-                return NativeFiducialFunctions.supply_calibration_image(currFrame.unmanagedFrame);
-            });
-                
+            int newCount = NativeFiducialFunctions.supply_calibration_image(currFrame.unmanagedFrame);
+
             if (newCount > prevCount)
             {
-                Debug.Log("Good picture!");
+                Debug.Log(string.Format("Good picture! Currently have {0} pictures stored out of the needed {1}.", newCount, MINIMUM_CALIBRATION_IMGS));
                 calibImgs.Add(currFrame);
             } else
             {
@@ -112,6 +124,7 @@ of a square on your printed checkerboard pattern and input it to the calibration
             Debug.LogError("Unable to take photo!");
         }
 
+        calibButton.UpdateState(calibImgs.Count >= MINIMUM_CALIBRATION_IMGS);
     }
 
     private void Shutdown()
@@ -119,10 +132,7 @@ of a square on your printed checkerboard pattern and input it to the calibration
         if (calibImgs.Count > 0)
         {
             calibImgs.Clear();
-            PluginLoadUtil.PerformPluginAction(() =>
-            {
-                NativeFiducialFunctions.clear_calibration_images();
-            });
+            NativeFiducialFunctions.clear_calibration_images();
         }
     }
 }

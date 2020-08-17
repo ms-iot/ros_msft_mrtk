@@ -43,7 +43,7 @@ public static class NativeFiducialFunctions
 
 
     #region Calibration P/Invoke
-
+    /*
     [DllImport("ros-msft-mrtk-native")]
     public static extern int supply_calibration_image(IntPtr img);
 
@@ -51,6 +51,16 @@ public static class NativeFiducialFunctions
     public static extern int clear_calibration_images();
 
     [DllImport("ros-msft-mrtk-native")]
+    public static extern int calibrate(float squareSize, out Intrensics intrensics); */
+
+
+    [DllImport("opencv-c-wrapper")]
+    public static extern int supply_calibration_image(IntPtr img);
+
+    [DllImport("opencv-c-wrapper")]
+    public static extern int clear_calibration_images();
+
+    [DllImport("opencv-c-wrapper")]
     public static extern int calibrate(float squareSize, out Intrensics intrensics);
 
     #endregion  // Calibration P/Invoke

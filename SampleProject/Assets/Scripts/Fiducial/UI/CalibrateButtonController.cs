@@ -47,9 +47,4 @@ public class CalibrateButtonController : MonoBehaviour
 
         buttonLogic.enabled = state;
     }
-
-    public void Foo()
-    {
-        Debug.Log("wahoodofjdslkfj");
-    }
 }

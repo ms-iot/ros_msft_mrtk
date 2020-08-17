@@ -16,9 +16,7 @@ del %AssetsFolder%\*.dll
 del %AssetsFolder%\*.pdb
 del %AssetsFolder%\*.deps.json
 
-rem DEBUG_PULL_ROS2_BIN
-rem xcopy /y /c C:\opt\ros\eloquent\x64\bin\*.dll %AssetsFolder%
-rem xcopy /y /c C:\opt\ros\eloquent\x64\bin\*.pdb %AssetsFolder%
+
 
 
 rem ROS2.NET
@@ -33,11 +31,11 @@ rem Apriltags
 xcopy /y /c C:\opt\vcpkg\buildtrees\apriltag\x64-windows-rel\*.dll %AssetsFolder%
 xcopy /y /c C:\opt\vcpkg\buildtrees\apriltag\x64-windows-rel\*.pdb %AssetsFolder%
 
-xcopy /y /c C:\opt\vcpkg\buildtrees\ros-msft-mrtk-native\x64-windows-rel\*.dll %AssetsFolder%
-xcopy /y /c C:\opt\vcpkg\buildtrees\ros-msft-mrtk-native\x64-windows-rel\*.pdb %AssetsFolder%
-
 xcopy /y /c C:\opt\vcpkg\buildtrees\opencv4\x64-windows-rel\bin\*.dll %AssetsFolder%
 xcopy /y /c C:\opt\vcpkg\buildtrees\opencv4\x64-windows-rel\bin\*.pdb %AssetsFolder%
+
+xcopy /y /c C:\opt\vcpkg\buildtrees\ros-msft-mrtk-native\x64-windows-rel\*.dll %AssetsFolder%
+xcopy /y /c C:\opt\vcpkg\buildtrees\ros-msft-mrtk-native\x64-windows-rel\*.pdb %AssetsFolder%
 
 
 for /R "%ROS2DOTNET_install%\lib\" %%f in (*_msgs_assemblies.*) do  xcopy  /y /c %%f %AssetsFolder%

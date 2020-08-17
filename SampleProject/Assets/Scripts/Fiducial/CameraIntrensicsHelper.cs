@@ -10,6 +10,11 @@ public static class CameraIntrensicsHelper
 
     private static Intrensics? intr;
 
+    /// <summary>
+    /// Retrieve the stored intrensics values from disk. Caches the value to avoid subsequent file i/o
+    /// If for some reason you need to read -> write -> read new value, you must first call ClearIntrensicsCache()
+    /// </summary>
+    /// <returns>The camera calibration intrensics, or null on failure</returns>
     public static Intrensics? ReadIntrensics()
     {
         // Avoid file i/o if possible, using cached value
@@ -39,6 +44,19 @@ public static class CameraIntrensicsHelper
         }
     }
 
+    /// <summary>
+    /// Clears the caches intrensics value, forcing the next read call to go to disk.
+    /// </summary>
+    public static void ClearIntrensicsCache()
+    {
+        intr = null;
+    }
+
+    /// <summary>
+    /// Writes the given intrensic values to disk.
+    /// </summary>
+    /// <param name="intrensics">The values to be written to disk</param>
+    /// <returns>true if the disk operation succeeded, otherwise false</returns>
     public static bool WriteIntrensics(Intrensics intrensics)
     {
         string json = JsonUtility.ToJson(intrensics);
