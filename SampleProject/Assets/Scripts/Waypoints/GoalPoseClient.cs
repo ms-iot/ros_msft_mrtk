@@ -8,6 +8,12 @@ using UnityEngine.SceneManagement;
 public class GoalPoseClient : MonoBehaviour
 {
     public PanelSizeToggler _panelSizeToggler;
+    public GameObject waypointPrefab;
+
+    [SerializeField]
+    private ToggleableButtonController StartChainToggle;
+    [SerializeField]
+    private ToggleableButtonController SendChainToggle;
 
 
     [SerializeField]
@@ -32,6 +38,7 @@ public class GoalPoseClient : MonoBehaviour
             if (_panelSizeToggler != null)
             {
                 _panelSizeToggler.OnStateChangeCallback(_state);
+                UpdateUIState();
             }
         }
     }
@@ -53,12 +60,7 @@ public class GoalPoseClient : MonoBehaviour
     {
         Debug.Log("StartChain()");
         _plotting = true;
-    }
-
-    public void CancelChain()
-    {
-        Debug.Log("CancelChain()");
-        ClearPoses();
+        
     }
 
     public void SendChain()
@@ -95,9 +97,30 @@ public class GoalPoseClient : MonoBehaviour
     {
         foreach (Transform t in _poses)
         {
-            Destroy(t);
+            Destroy(t.gameObject);
         }
         _poses.Clear();
+    }
+
+    private void UpdateUIState()
+    {
+        StartChainToggle.UpdateState(true);
+        SendChainToggle.UpdateState(_poses != null && _poses.Count > 0);
+    }
+
+    public void AddPose(Vector3 loc)
+    {
+        if (waypointPrefab != null)
+        {
+            Debug.Log("Spawning waypoint prefab");
+            GameObject obj = Instantiate(waypointPrefab, loc, Quaternion.identity);
+            _poses.AddLast(obj.transform);
+            UpdateUIState();
+        }
+        else
+        {
+            Debug.LogWarning("Prefab for waypoint spawner not given!");
+        }
     }
 
     public enum GoalPoseClientState

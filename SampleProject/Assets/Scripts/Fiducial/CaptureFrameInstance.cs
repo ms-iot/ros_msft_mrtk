@@ -60,7 +60,7 @@ public partial class WebcamSystem
             int kernelHandle = WebcamSystem.instance.BGRAtoGrayscaleShader.FindKernel("ProcessImage");
             uint groupSize;
             WebcamSystem.instance.BGRAtoGrayscaleShader.GetKernelThreadGroupSizes(kernelHandle, out groupSize, out _, out _);
-            if ((temp.width * temp.height) % groupSize == 0)
+            if ((temp.width * temp.height) % groupSize == 0)  // TASK: implement stride optimization
             {
                 lock(bufLock)
                 {
@@ -93,8 +93,6 @@ public partial class WebcamSystem
             // Allocate the unmanaged image struct
             unmanagedFrame = Marshal.AllocHGlobal(Marshal.SizeOf(temp));
             Marshal.StructureToPtr<image_u8>(temp, unmanagedFrame, false);
-
-            FiducialSystem.instance.UpdateSpacePinning(this);
         }
 
         // Takes the BGRA32 image data in buffer, and outputs to transformed the grayscale (1 byte per pixel)

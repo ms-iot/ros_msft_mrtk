@@ -22,7 +22,10 @@ public class PanelSizeToggler : MonoBehaviour
         }
 
         backplate.transform.localScale = new Vector3(_panelWidths[(int)newState], backplate.transform.localScale.y, backplate.transform.localScale.z);
-        buttonGroups[(int)_curState].gameObject.SetActive(false);
+        for (int i = 0; i < buttonGroups.Length; i++)
+        {
+            buttonGroups[i].gameObject.SetActive(false);
+        }
         buttonGroups[(int)newState].gameObject.SetActive(true);
     }
 

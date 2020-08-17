@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Windows.WebCam;
 
-public class CalibrationUI : MonoBehaviour
+public class CalibrationClient : MonoBehaviour
 {
     public ToggleableButtonController calibButton;
     public GameObject loadingComet;
@@ -91,9 +91,11 @@ of a square on your printed checkerboard pattern and input it to the calibration
             if (!CameraIntrensicsHelper.WriteIntrensics(foundIntr))
             {
                 Debug.LogError("Failed to write intrensics to disk!!");
+                return;
             }
 
             // End UI feedback/transition scene
+            
             loadingComet.SetActive(false);  // Not strictly needed, since we change scenes
             this.Shutdown();  // Clear the unmanaged memory!
             SceneManager.LoadScene("RobotScene");

@@ -9,6 +9,8 @@ using UnityEditor.Experimental.GraphView;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.IO;
+using UnityEngine.SceneManagement;
+using UnityEngine.Windows.WebCam;
 
 public class FiducialSystem : MonoBehaviour
 {
@@ -24,6 +26,13 @@ public class FiducialSystem : MonoBehaviour
 
     private bool active = false;
 
+    /// <summary>
+    /// Registers the OnSceneLoaded delegate early in game loop
+    /// </summary>
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
 
     private void Awake()
     {
@@ -40,7 +49,6 @@ public class FiducialSystem : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
         if (instance == null)
         {
             instance = this;
@@ -52,12 +60,28 @@ public class FiducialSystem : MonoBehaviour
             this.family = NativeFiducialFunctions.tagStandard41h12_create();
 
             active = true;
+        } else
+        {
+            Debug.LogWarning("Duplicate FiducialSystem tried to initialize in scene on gameobject " + this.gameObject + "; Destroying self!");
+            Destroy(this);
+        }
+    }
 
+    /// <summary>
+    /// Every time RobotScene is loaded, attempt to retrieve intrensics 
+    /// and start updating the space pinning if successful
+    /// </summary>
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name.Equals("RobotScene"))
+        {
             Intrensics? intr = CameraIntrensicsHelper.ReadIntrensics();
             if (intr.HasValue)
             {
                 intrensics = intr.Value;
-            } else
+                InvokeRepeating("PipePhotoToSpacePinning", 0f, 0.33f);
+            }
+            else
             {
                 Debug.Log("Failed to retrieve existing webcam parameters from disk. Manual calibration is required!");
                 GoalPoseClient gpc = FindObjectOfType<GoalPoseClient>();
@@ -68,8 +92,7 @@ public class FiducialSystem : MonoBehaviour
             }
         } else
         {
-            Debug.LogWarning("Duplicate FiducialSystem tried to initialize in scene on gameobject " + this.gameObject + "; Destroying self!");
-            Destroy(this);
+            CancelInvoke("PipePhotoToSpacePinning");
         }
     }
 
@@ -88,7 +111,27 @@ public class FiducialSystem : MonoBehaviour
         this.Shutdown();
     }
 
-    public void UpdateSpacePinning(WebcamSystem.CaptureFrameInstance captureFrame)
+    private void PipePhotoToSpacePinning()
+    {
+        WebcamSystem.instance.CapturePhoto(OnCapturedPhotoToMemory);
+    }
+
+    private void OnCapturedPhotoToMemory(PhotoCapture.PhotoCaptureResult result, PhotoCaptureFrame frame)
+    {
+        if (result.success)
+        {
+            Debug.Log("snap...");
+            WebcamSystem.CaptureFrameInstance currFrame = new WebcamSystem.CaptureFrameInstance(frame);
+            UpdateSpacePinning(currFrame);
+        }
+        else
+        {
+            Debug.LogError("Regular space pinning webcam call failed!");
+        }
+
+    }
+
+    private void UpdateSpacePinning(WebcamSystem.CaptureFrameInstance captureFrame)
     {
 
         TfVector3? loc = listener.LookupTranslation("base_link", "map");
@@ -112,10 +155,10 @@ public class FiducialSystem : MonoBehaviour
             IntPtr det = IntPtr.Add(detections.data, i * Marshal.SizeOf<ApriltagDetection>());
             AprilTagDetectionInfo info = new AprilTagDetectionInfo();
             info.det = det;
-            //info.fx = blah
-            //info.fy = blah
-            //info.cx = blah
-            //info.cy = blah
+            info.fx = intrensics.fx;
+            info.fy = intrensics.fy;
+            info.cx = intrensics.cx;
+            info.cy = intrensics.cy;
             AprilTagPose pose = new AprilTagPose();
             double err = NativeFiducialFunctions.estimate_tag_pose(in info, out pose);
         }
