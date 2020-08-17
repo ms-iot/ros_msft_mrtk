@@ -72,7 +72,6 @@ public struct image_u8
 
 #region Calibration Structures
 
-[Serializable]
 [StructLayout(LayoutKind.Sequential)]
 public struct Intrensics
 {

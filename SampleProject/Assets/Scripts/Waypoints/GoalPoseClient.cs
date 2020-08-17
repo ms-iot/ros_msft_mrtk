@@ -2,12 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(PanelSizeToggler))]
 public class GoalPoseClient : MonoBehaviour
 {
     public PanelSizeToggler _panelSizeToggler;
 
+
+    [SerializeField]
+    private GoalPoseClient.GoalPoseClientState initialActiveGroup;
     private LinkedList<Transform> _poses;
     private bool _plotting = false;
     private GoalPoseClientState _state;
@@ -32,12 +36,18 @@ public class GoalPoseClient : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        State = initialActiveGroup;
+    }
+
     private void Start()
     {
         _panelSizeToggler = GetComponentInChildren<PanelSizeToggler>();
         _poses = new LinkedList<Transform>();
-        State = GoalPoseClientState.IDLE;
     }
+
+    #region ChainBuildingGroup
 
     public void StartChain()
     {
@@ -60,6 +70,9 @@ public class GoalPoseClient : MonoBehaviour
 
     }
 
+    #endregion  // ChainBuildingGroup
+    #region ChainWatchingGroup
+
     public void AbortChain()
     {
         Debug.Log("pst = " + _panelSizeToggler);
@@ -67,6 +80,16 @@ public class GoalPoseClient : MonoBehaviour
         ClearPoses();
         State = GoalPoseClientState.IDLE;
     }
+
+    #endregion  // ChainWatchingGroup
+    #region CalibrationPromptGroup
+
+    public void GotoCalibration()
+    {
+        SceneManager.LoadScene("CalibrationScene");
+    }
+
+    #endregion  // CalibrationPromptGroup
 
     private void ClearPoses()
     {
@@ -80,7 +103,8 @@ public class GoalPoseClient : MonoBehaviour
     public enum GoalPoseClientState
     {
         IDLE = 0,
-        AWAITING = 1
+        AWAITING = 1,
+        NEEDING_CALIBRATION = 2
     }
 }
 

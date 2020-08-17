@@ -20,6 +20,7 @@ public class FiducialSystem : MonoBehaviour
     private IntPtr detector;
     private IntPtr family;
     private ZArray detections;
+    private Intrensics intrensics;
 
     private bool active = false;
 
@@ -52,7 +53,19 @@ public class FiducialSystem : MonoBehaviour
 
             active = true;
 
-
+            Intrensics? intr = CameraIntrensicsHelper.ReadIntrensics();
+            if (intr.HasValue)
+            {
+                intrensics = intr.Value;
+            } else
+            {
+                Debug.Log("Failed to retrieve existing webcam parameters from disk. Manual calibration is required!");
+                GoalPoseClient gpc = FindObjectOfType<GoalPoseClient>();
+                if (gpc != null)
+                {
+                    gpc.State = GoalPoseClient.GoalPoseClientState.NEEDING_CALIBRATION;
+                }
+            }
         } else
         {
             Debug.LogWarning("Duplicate FiducialSystem tried to initialize in scene on gameobject " + this.gameObject + "; Destroying self!");

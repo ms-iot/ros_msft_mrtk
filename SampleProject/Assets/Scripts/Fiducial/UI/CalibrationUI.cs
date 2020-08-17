@@ -8,7 +8,7 @@ using UnityEngine.Windows.WebCam;
 
 public class CalibrationUI : MonoBehaviour
 {
-    public CalibrateButtonController calibButton;
+    public ToggleableButtonController calibButton;
     public GameObject loadingComet;
     public float squareSize;
     [Range(15, 50)]
@@ -87,7 +87,6 @@ of a square on your printed checkerboard pattern and input it to the calibration
             loadingComet.SetActive(true);
 
             Intrensics foundIntr = await task;
-            Debug.Log(string.Format("Intrensics recieved; fx:{0} fy:{1} cx:{2} cy:{3}", foundIntr.fx, foundIntr.fy, foundIntr.cx, foundIntr.cy));
 
             if (!CameraIntrensicsHelper.WriteIntrensics(foundIntr))
             {

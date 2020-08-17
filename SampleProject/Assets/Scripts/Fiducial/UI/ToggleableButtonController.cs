@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CalibrateButtonController : MonoBehaviour
+public class ToggleableButtonController : MonoBehaviour
 {
+
     public MeshRenderer buttonMesh;
 
     public Material enabledMat;
@@ -12,6 +13,8 @@ public class CalibrateButtonController : MonoBehaviour
 
     public Interactable buttonLogic;
 
+    [SerializeField]
+    private bool initialState;
     private bool state;
 
     private void Start()
@@ -36,7 +39,7 @@ public class CalibrateButtonController : MonoBehaviour
             Debug.LogError("CalibrateButtonController is missing a buttonLogic");
         }
 
-        UpdateState(false);
+        UpdateState(initialState);
     }
 
     public void UpdateState(bool state)
