@@ -107,7 +107,12 @@ of a square on your printed checkerboard pattern and input it to the calibration
         if (result.success)
         {
             Debug.Log("SNAP!!!");
+
             WebcamSystem.CaptureFrameInstance currFrame = new WebcamSystem.CaptureFrameInstance(frame);
+
+            Debug.LogWarning("dumping img...");
+            int res = NativeFiducialFunctions.image_u8_write_pnm(currFrame.unmanagedFrame, "m:\\debugImg\\garbooggle.pnm");
+
             int prevCount = calibImgs.Count;
             int newCount = NativeFiducialFunctions.supply_calibration_image(currFrame.unmanagedFrame);
 

@@ -11,13 +11,14 @@ public partial class WebcamSystem : MonoBehaviour
 
     public ComputeShader BGRAtoGrayscaleShader;
     public Resolution cameraResolution;
+    public bool DEBUG_DUMP_IMGS;
 
     private bool ready = false;
     private PhotoCapture captureObject = null;
-    
+
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         if (instance == null)
         {
@@ -33,7 +34,7 @@ public partial class WebcamSystem : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
 #if UNITY_EDITOR
         if (UnityEditor.EditorApplication.isPlaying == false)
@@ -53,13 +54,22 @@ public partial class WebcamSystem : MonoBehaviour
         if (ready)
         {
             captureObject.TakePhotoAsync(callback);
+            if (DEBUG_DUMP_IMGS)
+            {
+                captureObject.TakePhotoAsync(string.Format(Application.persistentDataPath + "\\captures\\" + @"CapturedImage{0}_n.jpg", Time.time), PhotoCaptureFileOutputFormat.JPG, OnPhotoCapturedToDisk);
+            }
         } else
         {
             Debug.LogWarning("CapturePhoto called before webcam has successfully initialized!");
         }
     }
 
-    void OnPhotoCaptureCreated(PhotoCapture capture)
+    private void OnPhotoCapturedToDisk(PhotoCapture.PhotoCaptureResult result)
+    {
+        Debug.Log("crackle!");
+    }
+
+    private void OnPhotoCaptureCreated(PhotoCapture capture)
     {
         captureObject = capture;
         // takes the highest resolution image supported
@@ -75,7 +85,7 @@ public partial class WebcamSystem : MonoBehaviour
         captureObject.StartPhotoModeAsync(c, OnPhotoModeStarted);
     }
 
-    void OnPhotoModeStarted(PhotoCapture.PhotoCaptureResult result)
+    private void OnPhotoModeStarted(PhotoCapture.PhotoCaptureResult result)
     {
         if (result.success)
         {
@@ -86,7 +96,7 @@ public partial class WebcamSystem : MonoBehaviour
         }
     }
 
-    void OnStoppedPhotoMode(PhotoCapture.PhotoCaptureResult result)
+    private void OnStoppedPhotoMode(PhotoCapture.PhotoCaptureResult result)
     {
         captureObject.Dispose();
         captureObject = null;

@@ -13,14 +13,14 @@ public struct ZArray
     public ulong el_sz;
     public int size;
     public int alloc;
-    public IntPtr data;
+    public IntPtr data;  // ApriltagDetection**
 }
 
 
 [StructLayout(LayoutKind.Sequential)]
 public unsafe struct ApriltagDetection
 {
-    public IntPtr family;
+    public IntPtr family; 
     public int id;
     public int hamming;
     public float decision_margin;
@@ -36,13 +36,13 @@ public unsafe struct Matd
 {
     public uint nrows;
     public uint ncols;
-    public double* data;
+    public fixed double data[9];  // double*
 }
 
 [StructLayout(LayoutKind.Sequential)]
 public struct AprilTagDetectionInfo
 {
-    public IntPtr det;
+    public IntPtr det;  // ApriltagDetection*
     public double tagsize;
     public double fx;
     public double fy;
@@ -51,10 +51,10 @@ public struct AprilTagDetectionInfo
 }
 
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct AprilTagPose
+public struct AprilTagPose
 {
-    public Matd* R;
-    public Matd* t;
+    public IntPtr R;  // Matd*
+    public IntPtr t;  // Matd*
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -64,7 +64,7 @@ public struct image_u8
     public int height;
     public int stride;
 
-    public IntPtr buf;
+    public IntPtr buf;  // byte*
 }
 
 #endregion // Apriltag Structures

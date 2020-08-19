@@ -22,7 +22,7 @@ public static class NativeFiducialFunctions
     public static extern void tagStandard41h12_destroy(IntPtr family);
 
     [DllImport("apriltags-umich")]
-    public static extern void apriltag_detector_add_family(IntPtr detector, IntPtr family);
+    public static extern void apriltag_detector_add_family_bits(IntPtr detector, IntPtr family, int bits_corrected);
 
     [DllImport("apriltags-umich")]
     public static extern IntPtr apriltag_detector_detect(IntPtr detector, IntPtr img);

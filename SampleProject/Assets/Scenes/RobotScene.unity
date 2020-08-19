@@ -824,6 +824,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DEBUG_DUMP_IMAGE: 0
+  DEBUG_DUMP_IMAGE_NAME: m:\\debugImg\\garboogle.pnm
+  tagSize: 0.0508
 --- !u!4 &808498267
 Transform:
   m_ObjectHideFlags: 0
@@ -852,6 +854,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BGRAtoGrayscaleShader: {fileID: 7200000, guid: 4a86ddf9d04ba5e4198a36f53109f180,
     type: 3}
+  DEBUG_DUMP_IMGS: 0
 --- !u!1001 &1036457887
 PrefabInstance:
   m_ObjectHideFlags: 0
