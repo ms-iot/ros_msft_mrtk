@@ -1101,7 +1101,7 @@ MonoBehaviour:
   topic: /scan
   ringHeight: 3
   lidarDataProviderType: 2
-  spaceRendererType: 2
+  spaceRendererType: 0
 --- !u!33 &1098782709
 MeshFilter:
   m_ObjectHideFlags: 0
