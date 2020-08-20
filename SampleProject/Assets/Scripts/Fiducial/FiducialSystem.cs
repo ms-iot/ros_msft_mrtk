@@ -246,16 +246,17 @@ public class FiducialSystem : MonoBehaviour
         // Use the fiducial tag labeled '1' to pin the anchor
         if (fiducialCentersRelWebcam.ContainsKey(1))
         {
-            TfVector3? loc = _listener.LookupTranslation("fiducial_link", "odom");
+            TfVector3? fiducialCenterRelWorldZero = _listener.LookupTranslation("fiducial_link", "odom");
 
-            if (loc != null)
+            if (fiducialCenterRelWorldZero != null)
             {
-                Vector3 locU = VectorHelper.TfToUnity(loc.Value);
-                Vector3 anchorPos = fiducialCentersRelWebcam[1] + locU;
+                Vector3 fiducialCenterRelWorldZeroU = VectorHelper.TfToUnity(fiducialCenterRelWorldZero.Value);
+                Vector3 anchorPos = fiducialCentersRelWebcam[1] + fiducialCenterRelWorldZeroU;
 
                 GameObject anchor = new GameObject("WorldZero");
                 _pinning = anchor.AddComponent<WorldAnchor>();
                 anchor.transform.position = Camera.main.transform.position + anchorPos;
+                Collocator.StartCollocation(_pinning);
                 Debug.Log("Anchor laid at Unity-space coords" + anchor.transform.position);
                 return true;
             }
