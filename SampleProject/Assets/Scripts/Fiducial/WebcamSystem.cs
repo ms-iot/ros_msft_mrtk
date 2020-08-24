@@ -61,6 +61,9 @@ public partial class WebcamSystem : MonoBehaviour
         } else
         {
             Debug.LogWarning("CapturePhoto called before webcam has successfully initialized!");
+            PhotoCapture.PhotoCaptureResult failure = new PhotoCapture.PhotoCaptureResult();
+            failure.resultType = PhotoCapture.CaptureResultType.UnknownError;
+            callback(new PhotoCapture.PhotoCaptureResult(), null);
         }
     }
 

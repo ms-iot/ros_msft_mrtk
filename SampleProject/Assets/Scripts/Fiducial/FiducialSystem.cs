@@ -153,7 +153,7 @@ public class FiducialSystem : MonoBehaviour
                     // Pass anonymous function as callback which sets the currFrame on success
                     WebcamSystem.instance.CapturePhoto((PhotoCapture.PhotoCaptureResult result, PhotoCaptureFrame frame) =>
                     {
-                        if (result.success)
+                        if (result.success && frame != null)
                         {
                             WebcamSystem.CaptureFrameInstance currFrame = null;
                             Debug.Log("cr snap!");
