@@ -13,6 +13,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Windows.WebCam;
 using System.Runtime.CompilerServices;
 using UnityEngine.XR.WSA;
+using Microsoft.MixedReality.Toolkit;
 
 public class FiducialSystem : MonoBehaviour
 {
@@ -33,6 +34,20 @@ public class FiducialSystem : MonoBehaviour
     private WorldAnchor _pinning;
 
     private bool _active = false;
+
+    private struct RelTransform
+    {
+        public Vector3 translation;
+        public Quaternion rotation;
+
+        public RelTransform(Vector3 vec, Quaternion rot)
+        {
+            translation = vec;
+            rotation = rot;
+        }
+        
+    }
+
 
     /// <summary>
     /// Registers the OnSceneLoaded delegate early in game loop
@@ -201,14 +216,14 @@ public class FiducialSystem : MonoBehaviour
 
         if (DEBUG_DUMP_IMAGE)
         {
-            Debug.LogWarning("dumping img...");
-            int res = NativeFiducialFunctions.image_u8_write_pnm(captureFrame.unmanagedFrame, DEBUG_DUMP_IMAGE_NAME);
+            Debug.LogWarning("dumping processed img...");
+            int res = NativeFiducialFunctions.image_u8_write_pnm(captureFrame.unmanagedFrame, DEBUG_DUMP_IMAGE_NAME + "_" + System.DateTime.Now.Ticks + "_processed.pnm");
         }
 
         IntPtr nativeDetectionsHandle = NativeFiducialFunctions.apriltag_detector_detect(_detector, captureFrame.unmanagedFrame);
 
         _detections = Marshal.PtrToStructure<ZArray>(nativeDetectionsHandle);
-        Dictionary<int, Vector3> fiducialCentersRelWebcam = new Dictionary<int, Vector3>();
+        Dictionary<int, RelTransform> fiducialCentersRelWebcam = new Dictionary<int, RelTransform>();
         // Iterate over all detected apriltags in image
         for (int i = 0; i < _detections.size; i++)
         {
@@ -230,13 +245,19 @@ public class FiducialSystem : MonoBehaviour
 
 
             Matd t = Marshal.PtrToStructure<Matd>(pose.t);
-            Vector3? centerOfFiducialRelWebcam = VectorHelper.AprilToUnity(t);
+            Matd R = Marshal.PtrToStructure<Matd>(pose.R);
+            
+            Vector3? fiducialCenterRelWebcamTranslation = TransformHelper.VectorAprilToUnity(t);
+            Quaternion? fiducialCenterRelWebcamRotation = TransformHelper.QuatAprilToUnity(R);
 
-            if (centerOfFiducialRelWebcam.HasValue)
+            if (fiducialCenterRelWebcamTranslation.HasValue && fiducialCenterRelWebcamRotation.HasValue)
             {
-                fiducialCentersRelWebcam.Add(det.id, centerOfFiducialRelWebcam.Value);
+                fiducialCentersRelWebcam.Add(det.id, new RelTransform(fiducialCenterRelWebcamTranslation.Value,
+                    fiducialCenterRelWebcamRotation.Value));
+            } else
+            {
+                Debug.LogError("A TransformHelper apriltag conversion failed!");
             }
-
         }
 
         // Deallocate the Zarray of detections on native side
@@ -246,19 +267,36 @@ public class FiducialSystem : MonoBehaviour
         // Use the fiducial tag labeled '1' to pin the anchor
         if (fiducialCentersRelWebcam.ContainsKey(1))
         {
-            TfVector3? fiducialCenterRelWorldZero = _listener.LookupTranslation("fiducial_link", "odom");
+            // Raw TF values follow a different xyz coordinate system, must be converted with the TransformHelper class
+            TfVector3? worldZeroRelFiducialCenterTranslationTF = _listener.LookupTranslation("fiducial_link", "odom");
+            TfQuaternion? worldZeroRelFiducialCenterRotationTF = _listener.LookupRotation("fiducial_link", "odom");
 
-            if (fiducialCenterRelWorldZero != null)
+            if (worldZeroRelFiducialCenterTranslationTF.HasValue && worldZeroRelFiducialCenterRotationTF.HasValue)
             {
-                Vector3 fiducialCenterRelWorldZeroU = VectorHelper.TfToUnity(fiducialCenterRelWorldZero.Value);
-                Vector3 anchorPos = fiducialCentersRelWebcam[1] + fiducialCenterRelWorldZeroU;
+                Vector3 worldZeroRelFiducialCenterTranslation = TransformHelper.VectorTfToUnity(worldZeroRelFiducialCenterTranslationTF.Value);
+                Quaternion worldZeroRelFiducialCenterRotation = TransformHelper.QuatTfToUnity(worldZeroRelFiducialCenterRotationTF.Value);
+                // translate from camera pos -> fiducial tag pos
+                Vector3 fiducialPos = Camera.main.transform.position + fiducialCentersRelWebcam[1].translation;
+                // rotate from camera space -> fiducial space
+                Quaternion fiducialRot = Camera.main.transform.rotation * fiducialCentersRelWebcam[1].rotation; 
 
                 GameObject anchor = new GameObject("WorldZero");
                 _pinning = anchor.AddComponent<WorldAnchor>();
-                anchor.transform.position = Camera.main.transform.position + anchorPos;
+                // first put anchor at fiducial location...
+                anchor.transform.position = fiducialPos;
+                anchor.transform.rotation = fiducialRot;
+                // use fiducial location to utilize fiducial-spaced translation
+
+                /*anchor.transform.position = anchor.transform.position + anchor.transform.right * worldZeroRelFiducialCenterTranslation.x
+                    + anchor.transform.up * worldZeroRelFiducialCenterTranslation.y + anchor.transform.forward * worldZeroRelFiducialCenterTranslation.z;*/
+                
+                // end anchor positioning!
                 Collocator.StartCollocation(_pinning);
                 Debug.Log("Anchor laid at Unity-space coords" + anchor.transform.position);
                 return true;
+            } else
+            {
+                Debug.LogError("TF2 failed to query between fiducial tag and ROS world zero... is the ROS graph active?");
             }
         }
         

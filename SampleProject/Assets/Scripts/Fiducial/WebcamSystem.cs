@@ -11,7 +11,9 @@ public partial class WebcamSystem : MonoBehaviour
 
     public ComputeShader BGRAtoGrayscaleShader;
     public Resolution cameraResolution;
-    public bool DEBUG_DUMP_IMGS;
+    public bool DEBUG_DUMP_IMAGE;
+    public string DEBUG_DUMP_IMAGE_NAME;
+    
 
     private bool ready = false;
     private PhotoCapture captureObject = null;
@@ -54,9 +56,10 @@ public partial class WebcamSystem : MonoBehaviour
         if (ready)
         {
             captureObject.TakePhotoAsync(callback);
-            if (DEBUG_DUMP_IMGS)
+            if (DEBUG_DUMP_IMAGE)
             {
-                captureObject.TakePhotoAsync(string.Format(Application.persistentDataPath + "\\captures\\" + @"CapturedImage{0}_n.jpg", Time.time), PhotoCaptureFileOutputFormat.JPG, OnPhotoCapturedToDisk);
+                Debug.LogWarning("Dumping webcam img...   " + string.Format(DEBUG_DUMP_IMAGE_NAME + "_{0}_webcam.jpg", System.DateTime.Now.Ticks));
+                captureObject.TakePhotoAsync(string.Format(DEBUG_DUMP_IMAGE_NAME + "_{0}_webcam.jpg", System.DateTime.Now.Ticks), PhotoCaptureFileOutputFormat.JPG, OnPhotoCapturedToDisk);
             }
         } else
         {

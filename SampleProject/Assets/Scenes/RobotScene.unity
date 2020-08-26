@@ -303,7 +303,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &457654550
 Transform:
   m_ObjectHideFlags: 0
@@ -824,7 +824,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DEBUG_DUMP_IMAGE: 0
-  DEBUG_DUMP_IMAGE_NAME: m:\\debugImg\\garboogle.pnm
+  DEBUG_DUMP_IMAGE_NAME: m:\\debugImg\\cameronDemo
   tagSize: 0.0508
 --- !u!4 &808498267
 Transform:
@@ -854,7 +854,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BGRAtoGrayscaleShader: {fileID: 7200000, guid: 4a86ddf9d04ba5e4198a36f53109f180,
     type: 3}
-  DEBUG_DUMP_IMGS: 0
+  DEBUG_DUMP_IMAGE: 0
+  DEBUG_DUMP_IMAGE_NAME: m:\\debugImg\\webcam
 --- !u!1001 &1036457887
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1094,14 +1095,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   renderCallsPerSecond: 24
   lidarResolution: 360
-  worldScale: 3
+  worldScale: 1
   randomRange: {x: 8, y: 10}
   rosConnectorTimeout: 10
   rosBridgeURL: ws://192.168.0.44:9090
   topic: /scan
   ringHeight: 3
   lidarDataProviderType: 2
-  spaceRendererType: 0
+  spaceRendererType: 2
 --- !u!33 &1098782709
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1117,7 +1118,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1098782706}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1

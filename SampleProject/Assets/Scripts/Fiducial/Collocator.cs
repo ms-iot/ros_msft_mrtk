@@ -8,22 +8,26 @@ public class Collocator : MonoBehaviour
     public string tfFrameName;
     public bool DEBUG_NOISY;
 
-    private static WorldAnchor _anchor;
+    private static WorldAnchor _world_anchor;
+    private static WorldAnchor _self_anchor;
     private static TransformListener _listener;
 
     // Update is called once per frame
     void Update()
     {
-        if (_anchor != null && tfFrameName != null)
+        if (_world_anchor != null && tfFrameName != null)
         {
-            // If one works, both should
+            // If one works, both should;
+            // odom represents world zero/ _world_anchor
             TfVector3? tfVec = _listener.LookupTranslation("odom", tfFrameName);
             TfQuaternion? tfQuat = _listener.LookupRotation("odom", tfFrameName);
             if (tfVec.HasValue && tfQuat.HasValue)
             {
-                Vector3 translationU = VectorHelper.TfToUnity(tfVec.Value);
+                Vector3 translationU = TransformHelper.VectorTfToUnity(tfVec.Value);
                 Quaternion quatU = new Quaternion((float)tfQuat.Value.x, (float)tfQuat.Value.y, (float)tfQuat.Value.y, (float)tfQuat.Value.w);
-                transform.SetPositionAndRotation(_anchor.transform.position + translationU, quatU);
+                DestroyImmediate(_self_anchor);
+                transform.SetPositionAndRotation(_world_anchor.transform.position + translationU, quatU);
+                _self_anchor = gameObject.AddComponent<WorldAnchor>();
             } else
             {
                 Debug.LogWarning("Collocation for " + this.gameObject + " failed because TransformListener.LookupTranslation failed to find translation odom->" + tfFrameName);
@@ -35,6 +39,14 @@ public class Collocator : MonoBehaviour
         
     }
 
+    private void Start()
+    {
+        if (GetComponent<WorldAnchor>() == null)
+        {
+            _self_anchor = gameObject.AddComponent<WorldAnchor>();
+        }
+    }
+
     /// <summary>
     /// Tell all collocators to start processing their update loops, 
     /// relative to an anchor representing world zero (in ROS space)
@@ -42,7 +54,7 @@ public class Collocator : MonoBehaviour
     /// <param name="anchor">The anchor representing world zero (as understood by ROS)</param>
     public static void StartCollocation(WorldAnchor anchor)
     {
-        _anchor = anchor;
+        _world_anchor = anchor;
         _listener = new TransformListener();
     }
 }
