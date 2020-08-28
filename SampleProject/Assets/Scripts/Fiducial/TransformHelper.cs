@@ -1,5 +1,4 @@
 ﻿using ROS2;
-using RosSharp;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,7 +24,7 @@ public static class TransformHelper
     /// <returns>A quaternion</returns>
     public static Quaternion QuatTfToUnity(TfQuaternion quat)
     {
-        return new Quaternion((float)quat.x, (float)quat.y, (float)quat.z, (float)quat.w);  // TASK: not yet implemented
+        return new Quaternion((float)quat.x, (float)quat.y, (float)quat.z, (float)quat.w);  // TASK: not yet implemented 
     }
 
     /// <summary>
