@@ -3,9 +3,6 @@ using sensor_msgs.msg;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 using UnityEngine;
 
 public class ROS2LidarSubscription : ILidarDataProvider
@@ -42,7 +39,6 @@ public class ROS2LidarSubscription : ILidarDataProvider
                     expected: " + _owner.lidarResolution + ", recieved: " + ranges.Length);
                 return new float[_owner.lidarResolution];
             }
-            CleanData(ref ranges);
             return ranges;
         }
         else
@@ -50,7 +46,6 @@ public class ROS2LidarSubscription : ILidarDataProvider
             return new float[_owner.lidarResolution];
         }
     }
-
 
     private void CleanData(ref float[] lidarData)
     {
@@ -60,10 +55,16 @@ public class ROS2LidarSubscription : ILidarDataProvider
         });
     }
 
+    /// <summary>
+    /// Runs through the lidarData array/loop, replacing all points in the array classified as "dead" by the predicate
+    /// with a linear interpolation value with the nearest non-dead values.
+    /// </summary>
+    /// <param name="lidarData">A reference to an array, representing the lidar data ring (0th el is next to last el).</param>
+    /// <param name="deadPointClassify">A predicate function, which, given a float, returns if it is invalid (dead) data or not.</param>
     private void LinearlyInterpolateDeadPoints(ref float[] lidarData, Predicate<float> deadPointClassify)
     {
         //////////////////////////////////////////////////
-        /// Edge Case - Loop needs lerping
+        /// Edge Case - Loop edge element needs lerping
         {
             int startInd = lidarData.Length - 1;
             int endInd = 0;
@@ -122,6 +123,8 @@ public class ROS2LidarSubscription : ILidarDataProvider
         {
             for (int i = 1; i < lidarData.Length - 1; i++)
             {
+                // If the point is dead, start looking for the nearest
+                // non-dead points to the left and right of it.
                 if (deadPointClassify(lidarData[i]))
                 {
                     int startInd = i - 1;
@@ -137,6 +140,8 @@ public class ROS2LidarSubscription : ILidarDataProvider
                         }
                     }
                     float ctr = 1f;
+                    // Once the valid neighbor points are found,
+                    // linearly interpolate the dead swathe of points between them.
                     for (int j = startInd + 1; j < endInd; j++)
                     {
                         float frac = ctr / (1f + (float)gap);
@@ -151,6 +156,3 @@ public class ROS2LidarSubscription : ILidarDataProvider
         //////////////////////////////////////////////////
     }
 }
-
-
-
