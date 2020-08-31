@@ -3,6 +3,9 @@ using sensor_msgs.msg;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 using UnityEngine;
 
 public class ROS2LidarSubscription : ILidarDataProvider
@@ -39,6 +42,7 @@ public class ROS2LidarSubscription : ILidarDataProvider
                     expected: " + _owner.lidarResolution + ", recieved: " + ranges.Length);
                 return new float[_owner.lidarResolution];
             }
+            CleanData(ref ranges);
             return ranges;
         }
         else
