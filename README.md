@@ -117,8 +117,6 @@ bootstrap-vcpkg.bat
 vcpkg install apriltag:x64-windows
 vcpkg install opencv-c-wrapper:x64-windows
 ```
-
-
 # Bootstrapping your Mixed Reality Toolkit Application
 
   * Clone this repository to your computer.
@@ -143,6 +141,24 @@ vcpkg install opencv-c-wrapper:x64-windows
   * Click the play button in the editor.
 
 If configured properly, lidar data should be getting fed in from ROS and displayed in the scene.
+
+# Before building your HoloLens app:
+In order for the Hololens to perform space calibration, the app will need more information about the world around it. 
+  1. Print out this [fiducial tag](https://github.com/AprilRobotics/apriltag-imgs/blob/master/tagStandard41h12/tag41_12_00001.png) on white paper. Measure exactly how large the (square) printed tag is (in meters) and enter it in the `Tag Size` field of the fiducial system, on the Fiducial gameobject in the RobotScene. Attach the printed tag somewhere on the robot.
+  2. On the robot, modify the URDF file to define a new link `fiducial_link` specifying where the fiducial tag is attached to the robot frame, as I have done here below. Pay special attention to the origin; to ensure the hologram is projected correctly over top the robot, the xyz values must be set properly to the distance (in meters) of the center of the fiducial tag to the base link of the robot.
+  ```
+    <joint name="fiducial_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="fiducial_link"/>
+    <origin xyz="-0.068 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="fiducial_link">
+  ```
+  
+  3. Print out the [checkerboard pattern](https://github.com/opencv/opencv/blob/master/doc/pattern.png) for use in calibrating your HoloLens webcam, again on white paper. Ideally, tape the pattern down on some movable, rigid, flat surface (a cutting board would work, or cardboard). 
+  4. Measure the size of an individual black square on your printed pattern (in meters) and enter it into the `Square Size` field of the Calibration Client, on the Controller object in the CalibrationScene.
+
 
 
 # Contributions
