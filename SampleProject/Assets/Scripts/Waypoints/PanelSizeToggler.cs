@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// MonoBehaviour that allows a MRTK button panel to be dynamically resized at runtime
+/// as different UI states are traversed.
+/// </summary>
 public class PanelSizeToggler : MonoBehaviour
 {
 

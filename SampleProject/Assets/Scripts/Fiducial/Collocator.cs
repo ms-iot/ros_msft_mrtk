@@ -2,6 +2,10 @@
 using UnityEngine;
 using UnityEngine.XR.WSA;
 
+/// <summary>
+/// Once a ROS world origin anchor is added to the scene, this MonoBehaviour ensures the object is updated 
+/// to the correct position relative to said origin.
+/// </summary>
 public class Collocator : MonoBehaviour
 {
     [Tooltip("The name of the tf frame representing this collocated object e.g. base_link")]

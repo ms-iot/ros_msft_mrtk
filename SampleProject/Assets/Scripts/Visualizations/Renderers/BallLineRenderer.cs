@@ -14,6 +14,7 @@ public class BallLineRenderer : BallRenderer
 
     public override void Render(float[] lidarData, Transform origin)
     {
+        // Move the balls
         base.Render(lidarData, origin);
 
         if (_lineCache == null)

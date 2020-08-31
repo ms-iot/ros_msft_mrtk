@@ -4,13 +4,19 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Windows.WebCam;
 
+/// <summary>
+/// Performs UI logic for the executing the calibration workflow
+/// </summary>
 public class CalibrationClient : MonoBehaviour
 {
     public ToggleableButtonController calibButton;
     public GameObject loadingComet;
+    [Tooltip("Measure, in meters, of how wide/tall a single square is on the printed checkerboard.")]
     public float squareSize;
     [Range(15, 50)]
+    [Tooltip("Minimum number of calibration images to supply require before performing the calibration. More takes longer, but will produce more accurate space pinning.")]
     public int MINIMUM_CALIBRATION_IMGS = 15;
+    [Tooltip("Allows keyboard-friendly controls for taking calibration images.")]
     public bool DEBUG;
 
     private Resolution res;
@@ -100,6 +106,9 @@ of a square on your printed checkerboard pattern and input it to the calibration
         }
     }
 
+    /// <summary>
+    /// Given a camera result/frame, adds it to the calibration pool
+    /// </summary>
     private void OnCapturedPhotoToMemory(PhotoCapture.PhotoCaptureResult result, PhotoCaptureFrame frame)
     {
         if (result.success)
@@ -108,9 +117,12 @@ of a square on your printed checkerboard pattern and input it to the calibration
 
             WebcamSystem.CaptureFrameInstance currFrame = new WebcamSystem.CaptureFrameInstance(frame);
 
-            Debug.LogWarning("dumping img...");
-            int res = NativeFiducialFunctions.image_u8_write_pnm(currFrame.unmanagedFrame, "m:\\debugImg\\garbooggle.pnm");
-
+            if (DEBUG)
+            {
+                Debug.LogWarning("dumping img...");
+                int res = NativeFiducialFunctions.image_u8_write_pnm(currFrame.unmanagedFrame, "m:\\debugImg\\garbooggle.pnm");
+            }
+            
             int prevCount = calibImgs.Count;
             int newCount = NativeFiducialFunctions.supply_calibration_image(currFrame.unmanagedFrame);
 

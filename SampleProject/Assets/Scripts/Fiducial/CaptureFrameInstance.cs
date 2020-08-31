@@ -14,8 +14,9 @@ public partial class WebcamSystem
     /// </summary>
     public class CaptureFrameInstance
     {
+        // built-up native struct of the image. Used by apriltag library.
         public System.IntPtr unmanagedFrame;
-
+        // pointer to the native-side image buffer. Used for easy deallocation later.
         private System.IntPtr _bufPtr;
 
         // reuse buffers from frame to frame
@@ -25,6 +26,11 @@ public partial class WebcamSystem
         private static ComputeBuffer _outputBuffer;
         private static Object bufLock = new Object();
 
+        /// <summary>
+        /// The same buffers are shared from instance to instance
+        /// to reduce overhead. Consequentially, the program must 
+        /// free the buffers manually when done using CaptureFrameInstances
+        /// </summary>
         public static void DisposeBuffers()
         {
             if (_inputBuffer != null)

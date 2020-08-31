@@ -1,19 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 using ROS2;
 using System;
 using System.Runtime.InteropServices;
-using UnityEditor.Experimental.GraphView;
-using System.Text.RegularExpressions;
-using System.Text;
 using System.IO;
 using UnityEngine.SceneManagement;
 using UnityEngine.Windows.WebCam;
-using System.Runtime.CompilerServices;
 using UnityEngine.XR.WSA;
-using Microsoft.MixedReality.Toolkit;
 
 public class FiducialSystem : MonoBehaviour
 {
@@ -83,7 +77,7 @@ public class FiducialSystem : MonoBehaviour
             _family = NativeFiducialFunctions.tagStandard41h12_create();
             // Start detecting Apriltags from the 41h12 family:
             // https://github.com/AprilRobotics/apriltag-imgs/tree/master/tagStandard41h12
-            NativeFiducialFunctions.apriltag_detector_add_family_bits(this._detector, this._family, 2); 
+            NativeFiducialFunctions.apriltag_detector_add_family_bits(this._detector, this._family); 
 
             _active = true;
         } else
@@ -206,6 +200,15 @@ public class FiducialSystem : MonoBehaviour
         this.Shutdown();
     }
 
+    /// <summary>
+    /// Attempts to locate the ROS world origin, placing a world anchor at that location if found.
+    /// </summary>
+    /// <returns>
+    /// true if a world anchor is created successfully, otherwise false.
+    /// A world anchor could fail to be created for a number of reasons: webcam image did not have
+    /// an identifiable apriltag, tf2 messages are not being found (no robot discovered, incorrect frame name)
+    /// etc.
+    /// </returns>
     private bool UpdateSpacePinning(WebcamSystem.CaptureFrameInstance captureFrame)
     {   
 

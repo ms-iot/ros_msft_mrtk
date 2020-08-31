@@ -3,6 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This MonoBehaviour is used to toggle between an off state and an on state,
+/// both by updating the visuals and enabling the button functionality.
+/// </summary>
 public class ToggleableButtonController : MonoBehaviour
 {
 
@@ -42,6 +46,10 @@ public class ToggleableButtonController : MonoBehaviour
         UpdateState(initialState);
     }
 
+    /// <summary>
+    /// The class performing UI logic (determining when buttons are active) 
+    /// needs to call this function to set buttons active/inactive
+    /// </summary>
     public void UpdateState(bool state)
     {
         this.state = state;
