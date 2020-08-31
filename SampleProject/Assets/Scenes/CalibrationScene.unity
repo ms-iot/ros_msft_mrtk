@@ -129,7 +129,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 81586105}
+  - component: {fileID: 81586104}
   m_Layer: 0
   m_Name: Panel
   m_TagString: Untagged
@@ -137,7 +137,7 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &81586105
+--- !u!4 &81586104
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -278,7 +278,7 @@ Transform:
   m_Children:
   - {fileID: 647744500}
   - {fileID: 824362701}
-  m_Father: {fileID: 81586105}
+  m_Father: {fileID: 81586104}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &305348321
@@ -323,7 +323,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 81586105}
+    m_TransformParent: {fileID: 81586104}
     m_Modifications:
     - target: {fileID: 940011625943860890, guid: cde3433ba6ee50a4a972fb6c75647f75,
         type: 3}
@@ -611,7 +611,7 @@ Transform:
   m_LocalScale: {x: 1.36, y: 1.15, z: 1}
   m_Children:
   - {fileID: 249694048}
-  m_Father: {fileID: 81586105}
+  m_Father: {fileID: 81586104}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &824362700
@@ -765,11 +765,11 @@ PrefabInstance:
         type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 824362705}
+      objectReference: {fileID: 878168957}
     - target: {fileID: 8779034279059886464, guid: 3f1f46cbecbe08e46a303ccfdb5b498a,
         type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Foo
+      value: DoCalibration
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3f1f46cbecbe08e46a303ccfdb5b498a, type: 3}
@@ -812,12 +812,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 824362703}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c59ed7c7eb0f1c439275852e74cdec2, type: 3}
+  m_Script: {fileID: 11500000, guid: 5680343620c249d45a564ad1b6e37393, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   buttonMesh: {fileID: 824362702}
   enabledMat: {fileID: 2100000, guid: 1ad68daec9ac6374cb32214e55dc158e, type: 2}
-  disabledMat: {fileID: 2100000, guid: 329cdefad4cf0f14e9b6767d0af094b0, type: 2}
+  disabledMat: {fileID: 2100000, guid: 7a340917eaca38f43a0deae0b3175ae2, type: 2}
   buttonLogic: {fileID: 824362704}
 --- !u!1 &872656006
 GameObject:
@@ -994,7 +994,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   calibButton: {fileID: 824362705}
-  squareSize: 3
+  loadingComet: {fileID: 1581917629}
+  squareSize: 0.022225
+  MINIMUM_CALIBRATION_IMGS: 15
+  DEBUG: 1
 --- !u!114 &878168958
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1015,14 +1018,14 @@ MonoBehaviour:
   smoothing: 1
   lifetime: 0
   referenceDirection: 1
-  minDistance: 1
-  maxDistance: 2
+  minDistance: 0.5
+  maxDistance: 1
   minViewDegrees: 0
   maxViewDegrees: 45
   aspectV: 1
   ignoreAngleClamp: 0
   ignoreDistanceClamp: 0
-  useFixedVerticalPosition: 0
+  useFixedVerticalPosition: 1
   fixedVerticalPosition: -0.4
   orientToReferenceDirection: 0
 --- !u!114 &878168959
@@ -1055,7 +1058,7 @@ Transform:
   m_LocalPosition: {x: -8.26564, y: 1.9131364, z: 1.84803}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 81586105}
+  - {fileID: 81586104}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1195,6 +1198,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1581917629 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6170998409441708039, guid: cde3433ba6ee50a4a972fb6c75647f75,
+    type: 3}
+  m_PrefabInstance: {fileID: 576962325}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1582711716
 GameObject:
   m_ObjectHideFlags: 0

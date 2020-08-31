@@ -5,17 +5,15 @@ using UnityEngine;
 
 public class SpawnWaypointOnPointerEvent : MonoBehaviour
 {
-    public GameObject prefab;
+    private GoalPoseClient gpc;
+
+    private void Start()
+    {
+        gpc = FindObjectOfType<GoalPoseClient>();
+    }
 
     public void Spawn(MixedRealityPointerEventData eventData)
     {
-                                   if (prefab != null)
-        {
-            Debug.Log("Spawning waypoint prefab");
-            Instantiate(prefab, eventData.Pointer.Result.Details.Point, Quaternion.identity);
-        } else
-        {
-            Debug.LogWarning("Prefab for waypoint spawner not given!");
-        }
+        gpc.AddPose(eventData.Pointer.Result.Details.Point);
     }
 }

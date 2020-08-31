@@ -7,17 +7,20 @@ using UnityEngine.Windows.WebCam;
 
 public partial class WebcamSystem : MonoBehaviour
 {
-    public static WebcamSystem instance;
-
     public ComputeShader BGRAtoGrayscaleShader;
     public Resolution cameraResolution;
+    public bool DEBUG_DUMP_IMAGE;
+    public string DEBUG_DUMP_IMAGE_NAME;
 
-    private bool ready = false;
-    private PhotoCapture captureObject = null;
-    
+    public static WebcamSystem instance;
+
+
+    private bool _ready = false;
+    private PhotoCapture _captureObject = null;
+
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         if (instance == null)
         {
@@ -33,7 +36,7 @@ public partial class WebcamSystem : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
 #if UNITY_EDITOR
         if (UnityEditor.EditorApplication.isPlaying == false)
@@ -50,21 +53,35 @@ public partial class WebcamSystem : MonoBehaviour
 
     public void CapturePhoto(PhotoCapture.OnCapturedToMemoryCallback callback)
     {
-        if (ready)
+        if (_ready)
         {
-            captureObject.TakePhotoAsync(callback);
+            _captureObject.TakePhotoAsync(callback);
+            if (DEBUG_DUMP_IMAGE)
+            {
+                Debug.LogWarning("Dumping webcam img...   " + string.Format(DEBUG_DUMP_IMAGE_NAME + "_{0}_webcam.jpg", System.DateTime.Now.Ticks));
+                _captureObject.TakePhotoAsync(string.Format(DEBUG_DUMP_IMAGE_NAME + "_{0}_webcam.jpg", System.DateTime.Now.Ticks), PhotoCaptureFileOutputFormat.JPG, OnPhotoCapturedToDisk);
+            }
         } else
         {
             Debug.LogWarning("CapturePhoto called before webcam has successfully initialized!");
+            PhotoCapture.PhotoCaptureResult failure = new PhotoCapture.PhotoCaptureResult();
+            failure.resultType = PhotoCapture.CaptureResultType.UnknownError;
+            callback(new PhotoCapture.PhotoCaptureResult(), null);
         }
     }
 
-    void OnPhotoCaptureCreated(PhotoCapture capture)
+    // Debug
+    private void OnPhotoCapturedToDisk(PhotoCapture.PhotoCaptureResult result)
     {
-        captureObject = capture;
+        Debug.Log("crackle!");
+    }
+
+    private void OnPhotoCaptureCreated(PhotoCapture capture)
+    {
+        _captureObject = capture;
         // takes the highest resolution image supported
         cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
-        Debug.Log(string.Format("Initializing camera with resolution: {0}x{1}", cameraResolution.width, cameraResolution.height));
+        Debug.Log(String.Format("Initializing camera with resolution: {0}x{1}", cameraResolution.width, cameraResolution.height));
 
         CameraParameters c = new CameraParameters();
         c.hologramOpacity = 0.0f;
@@ -72,33 +89,33 @@ public partial class WebcamSystem : MonoBehaviour
         c.cameraResolutionHeight = cameraResolution.height;
         c.pixelFormat = CapturePixelFormat.BGRA32;
 
-        captureObject.StartPhotoModeAsync(c, OnPhotoModeStarted);
+        _captureObject.StartPhotoModeAsync(c, OnPhotoModeStarted);
     }
 
-    void OnPhotoModeStarted(PhotoCapture.PhotoCaptureResult result)
+    private void OnPhotoModeStarted(PhotoCapture.PhotoCaptureResult result)
     {
         if (result.success)
         {
-            ready = true;
+            _ready = true;
         } else
         {
             Debug.LogError("Unable to start photo mode!");
         }
     }
 
-    void OnStoppedPhotoMode(PhotoCapture.PhotoCaptureResult result)
+    private void OnStoppedPhotoMode(PhotoCapture.PhotoCaptureResult result)
     {
-        captureObject.Dispose();
-        captureObject = null;
-        ready = false;
+        _captureObject.Dispose();
+        _captureObject = null;
+        _ready = false;
     }
 
     private void Shutdown()
     {
-        if (captureObject != null && ready)
+        if (_captureObject != null && _ready)
         {
-            ready = false;
-            captureObject.StopPhotoModeAsync(OnStoppedPhotoMode);
+            _ready = false;
+            _captureObject.StopPhotoModeAsync(OnStoppedPhotoMode);
             CaptureFrameInstance.DisposeBuffers();
         }
     }

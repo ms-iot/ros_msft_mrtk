@@ -62,7 +62,6 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
             Debug.LogWarning("Renderer is configured to handle different resolution of lidar data than it is being passed.");
         }
 
-        CleanData(ref lidarData);
         for (int vInd = 0; vInd < _verts.Length; vInd += 2)
         {
             // vInd = index for column in the ladder; 
@@ -115,105 +114,6 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
 
         WeaveTriangles();
         
-    }
-
-    private void CleanData(ref float[] lidarData)
-    {
-        LinearlyInterpolateDeadPoints(ref lidarData, (flt) =>
-        {
-            return float.IsInfinity(flt) || flt < 0.01f;
-        });
-    }
-
-    private void LinearlyInterpolateDeadPoints(ref float[] lidarData, Predicate<float> deadPointClassify)
-    {
-        //////////////////////////////////////////////////
-        /// Edge Case - Loop needs lerping
-        {
-            int startInd = lidarData.Length - 1;
-            int endInd = 0;
-            int gap = 0;
-            if (deadPointClassify(lidarData[0]))
-            {
-                gap++;
-                for (int i = 1; i < lidarData.Length; i++)
-                {
-                    if (!deadPointClassify(lidarData[i]))
-                    {
-                        gap += i - 1;
-                        endInd = i;
-                        break;
-                    }
-                }
-                for (int i = 1; i < lidarData.Length; i++)
-                {
-                    if (!deadPointClassify(lidarData[lidarData.Length - i]))
-                    {
-                        gap += i - 1;
-                        startInd = lidarData.Length - i;
-                        break;
-                    }
-                }
-            }
-            else if (deadPointClassify(lidarData[lidarData.Length - 1]))
-            {
-                gap++;
-                for (int i = 1; i < lidarData.Length; i++)
-                {
-                    if (!deadPointClassify(lidarData[lidarData.Length - i]))
-                    {
-                        gap += i - 2;
-                        startInd = lidarData.Length - i;
-                        break;
-                    }
-                }
-            }
-            if (gap > 0)
-            {
-                float ctr = 1f;
-                for (int i = startInd + 1; i < startInd + gap + 1; i++)
-                {
-                    int boundedInd = i % lidarData.Length;
-                    float frac = ctr / (1f + (float)gap);
-                    lidarData[boundedInd] = Mathf.Lerp(lidarData[startInd],
-                        lidarData[endInd], frac);
-                    ctr++;
-                }
-            }
-        }
-        /// End Edge Case - Loop needs lerping
-        //////////////////////////////////////////////////
-        /// Base Case - Center portion of array
-        {
-            for (int i = 1; i < lidarData.Length - 1; i++)
-            {
-                if (deadPointClassify(lidarData[i]))
-                {
-                    int startInd = i - 1;
-                    int endInd = i;
-                    int gap = 1;
-                    for (int j = 1; i + j < lidarData.Length; j++)
-                    {
-                        if (!deadPointClassify(lidarData[i + j]))
-                        {
-                            gap = j;
-                            endInd = i + j;
-                            break;
-                        }
-                    }
-                    float ctr = 1f;
-                    for (int j = startInd + 1; j < endInd; j++)
-                    {
-                        float frac = ctr / (1f + (float)gap);
-                        lidarData[j] = Mathf.Lerp(lidarData[startInd],
-                            lidarData[endInd], frac);
-                        ctr++;
-                    }
-                }
-            }
-        }
-        /// End Base Case
-        //////////////////////////////////////////////////
     }
 
     private void WeaveTriangles()

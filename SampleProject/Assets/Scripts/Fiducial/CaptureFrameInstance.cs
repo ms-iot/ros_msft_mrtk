@@ -14,15 +14,23 @@ public partial class WebcamSystem
     /// </summary>
     public class CaptureFrameInstance
     {
+        // built-up native struct of the image. Used by apriltag library.
         public System.IntPtr unmanagedFrame;
-
+        // pointer to the native-side image buffer. Used for easy deallocation later.
         private System.IntPtr _bufPtr;
 
         // reuse buffers from frame to frame
+        // assumes resolution stays constant throughout
+        // lifetime of program
         private static ComputeBuffer _inputBuffer;
         private static ComputeBuffer _outputBuffer;
-        private static Object bufLock;
+        private static Object bufLock = new Object();
 
+        /// <summary>
+        /// The same buffers are shared from instance to instance
+        /// to reduce overhead. Consequentially, the program must 
+        /// free the buffers manually when done using CaptureFrameInstances
+        /// </summary>
         public static void DisposeBuffers()
         {
             if (_inputBuffer != null)
@@ -58,7 +66,7 @@ public partial class WebcamSystem
             int kernelHandle = WebcamSystem.instance.BGRAtoGrayscaleShader.FindKernel("ProcessImage");
             uint groupSize;
             WebcamSystem.instance.BGRAtoGrayscaleShader.GetKernelThreadGroupSizes(kernelHandle, out groupSize, out _, out _);
-            if ((temp.width * temp.height) % groupSize == 0)
+            if ((temp.width * temp.height) % groupSize == 0)  // TASK: implement stride optimization
             {
                 lock(bufLock)
                 {
@@ -91,8 +99,6 @@ public partial class WebcamSystem
             // Allocate the unmanaged image struct
             unmanagedFrame = Marshal.AllocHGlobal(Marshal.SizeOf(temp));
             Marshal.StructureToPtr<image_u8>(temp, unmanagedFrame, false);
-
-            FiducialSystem.instance.UpdateSpacePinning(this);
         }
 
         // Takes the BGRA32 image data in buffer, and outputs to transformed the grayscale (1 byte per pixel)

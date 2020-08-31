@@ -3,8 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CalibrateButtonController : MonoBehaviour
+/// <summary>
+/// This MonoBehaviour is used to toggle between an off state and an on state,
+/// both by updating the visuals and enabling the button functionality.
+/// </summary>
+public class ToggleableButtonController : MonoBehaviour
 {
+
     public MeshRenderer buttonMesh;
 
     public Material enabledMat;
@@ -12,6 +17,8 @@ public class CalibrateButtonController : MonoBehaviour
 
     public Interactable buttonLogic;
 
+    [SerializeField]
+    private bool initialState;
     private bool state;
 
     private void Start()
@@ -36,9 +43,13 @@ public class CalibrateButtonController : MonoBehaviour
             Debug.LogError("CalibrateButtonController is missing a buttonLogic");
         }
 
-        UpdateState(false);
+        UpdateState(initialState);
     }
 
+    /// <summary>
+    /// The class performing UI logic (determining when buttons are active) 
+    /// needs to call this function to set buttons active/inactive
+    /// </summary>
     public void UpdateState(bool state)
     {
         this.state = state;
@@ -46,10 +57,5 @@ public class CalibrateButtonController : MonoBehaviour
         buttonMesh.material = state ? enabledMat : disabledMat;
 
         buttonLogic.enabled = state;
-    }
-
-    public void Foo()
-    {
-        Debug.Log("wahoodofjdslkfj");
     }
 }

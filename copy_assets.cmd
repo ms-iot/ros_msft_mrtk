@@ -11,6 +11,14 @@ echo Copying from %ROS2DOTNET_install% to %AssetsFolder%
 
 if not exist %AssetsFolder% (mkdir %AssetsFolder%)
 
+rem Cleanup
+del %AssetsFolder%\*.dll
+del %AssetsFolder%\*.pdb
+del %AssetsFolder%\*.deps.json
+
+
+
+
 rem ROS2.NET
 xcopy /y /c %ROS2DOTNET_install%\bin\*.dll %AssetsFolder%
 xcopy /y /c %ROS2DOTNET_install%\bin\*.pdb %AssetsFolder%
@@ -23,6 +31,9 @@ rem Apriltags
 xcopy /y /c C:\opt\vcpkg\buildtrees\apriltag\x64-windows-rel\*.dll %AssetsFolder%
 xcopy /y /c C:\opt\vcpkg\buildtrees\apriltag\x64-windows-rel\*.pdb %AssetsFolder%
 
+xcopy /y /c C:\opt\vcpkg\buildtrees\opencv4\x64-windows-rel\bin\*.dll %AssetsFolder%
+xcopy /y /c C:\opt\vcpkg\buildtrees\opencv4\x64-windows-rel\bin\*.pdb %AssetsFolder%
+
 xcopy /y /c C:\opt\vcpkg\buildtrees\ros-msft-mrtk-native\x64-windows-rel\*.dll %AssetsFolder%
 xcopy /y /c C:\opt\vcpkg\buildtrees\ros-msft-mrtk-native\x64-windows-rel\*.pdb %AssetsFolder%
 
@@ -33,7 +44,7 @@ goto :eof
 
 :help
     echo Copy Assets moves binaries from a ROS2.net workspace into Unity for inclusion
-    echo into a Hololens or VR application
+    echo into a Hololens or VR application.
     echo.
     echo.
     echo    copy_assets.cmd "path to ros2 workspace"
