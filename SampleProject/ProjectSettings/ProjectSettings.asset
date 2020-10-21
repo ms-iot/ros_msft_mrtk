@@ -714,7 +714,8 @@ PlayerSettings:
   scriptingRuntimeVersion: 1
   gcIncremental: 0
   gcWBarrierValidation: 0
-  apiCompatibilityLevelPerPlatform: {}
+  apiCompatibilityLevelPerPlatform:
+    Windows Store Apps: 6
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Template3D
@@ -723,10 +724,10 @@ PlayerSettings:
   metroCertificatePassword: 
   metroCertificateSubject: DefaultCompany
   metroCertificateIssuer: DefaultCompany
-  metroCertificateNotAfter: 00c249ff6c5ad601
+  metroCertificateNotAfter: 00f2755278b2d701
   metroApplicationDescription: Template_3D
   wsaImages:
-    2031816: Assets/Microsoft.Maps.Unity.Examples/Icon_88x88.png
+    2031816: Assets/QueenBee_44x44.png
   metroTileShortName: MRTK for ROS Samples
   metroTileShowName: 0
   metroMediumTileShowName: 0
@@ -781,10 +782,10 @@ PlayerSettings:
       VoipCall: False
       WebCam: True
   metroTargetDeviceFamilies:
-    Desktop: False
-    Holographic: False
-    IoT: False
-    IoTHeadless: False
+    Desktop: True
+    Holographic: True
+    IoT: True
+    IoTHeadless: True
     Mobile: False
     Team: False
     Xbox: False
