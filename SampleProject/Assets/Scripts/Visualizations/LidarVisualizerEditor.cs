@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(LidarVisualizer))]
 public class LidarVisualizerEditor : Editor
 {
@@ -85,3 +86,4 @@ public class LidarVisualizerEditor : Editor
         
     }
 }
+#endif

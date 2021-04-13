@@ -5,19 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Scenes/RobotScene.unity
     guid: 32a6726a54869df4f95b0405a55ca326
-  - enabled: 1
-    path: Assets/Scenes/CalibrationScene.unity
-    guid: ae94327194806ef468b37b79c4985c22
   m_configObjects: {}
