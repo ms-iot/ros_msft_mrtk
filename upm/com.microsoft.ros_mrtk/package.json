@@ -1,0 +1,24 @@
+{
+    "name": "com.microsoft.ros_mrtk",
+    "version": "0.0.1",
+    "displayName": "ROS2 and ROS2.net UI Components for Unity",
+    "description": "Use ROS2 from within Unity!",
+    "unity": "2019.1",
+    "unityRelease": "0b5",
+    "dependencies": {
+      "com.microsoft.ros_mrtk_native": "0.0.1"
+    },
+   "keywords": [
+      "ROS",
+      "ROS2",
+      "Windows",
+      "Hololens",
+      "MRTK"
+    ],
+    "author": {
+      "name": "Microsoft",
+      "email": "riotsquad@microsoft.com",
+      "url": "https://aka.ms/ros/mrtk"
+    }
+  }
+  

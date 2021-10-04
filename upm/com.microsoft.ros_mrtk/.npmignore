@@ -1,0 +1,9 @@
+*.nuspec
+*.nuspec.meta
+*.tgz
+build_upm.cmd
+build_upm.ps1
+
+wsa_arm64_meta.txt
+wsa_x64_meta.txt
+x86_64_meta.txt
