@@ -1,54 +1,35 @@
-# Mixed Reality Toolkit for ROS Overview
+# Mixed Reality Toolkit for ROS2 Overview
 > The MRTK for ROS is being developed in the open: Feature requests are very much welcome at the [issues page](https://github.com/ms-iot/ros_msft_mrtk/issues).
 
-The Robot Operating system - also called ROS [^1] - is an open source middleware for creating Robots. This repository implements glue which connects your Mixed Reality Robotics application with Robots and infrastructure running using ROS2. It works with [ROS2.net](https://github.com/ros2-dotnet/ros2_dotnet) within the Unity Game Engine.
+The Robot Operating system - also called ROS [^1] - is an open source middleware for creating Robots. This repository implements glue which connects your Mixed Reality Robotics application with Robots and infrastructure running using ROS2. It works with [ROS2.net](https://github.com/ros2-dotnet/ros2_dotnet) within the Unity Game engine.
 
 The Mixed Reality Toolkit is an Open Source framework for building Virtual Reality and Augmented Reality applications, which target numerous platforms - including Hololens.
 
 The MRTK for ROS Unity Extension is being developed by the ROS2.net maintainers, the Microsoft Edge Robotics team and the Mixed Reality Robotics team.
 
-# Getting started with ROS2
-This project depends on your installation of ROS2 Foxy and [ROS2.net](https://github.com/ros2-dotnet/ros2_dotnet) for Foxy for Windows. Because of the dependency chain, Windows is required. MRTK for ROS development will not be supported on other platforms.
+## Getting started with ROS2 on Hololens.
+This depends on [ROS2 Foxy UPM supplied by Microsoft](http://aka.ms/ros/mrtk_native). Windows is required for Hololens and Windows Mixed Reality development. MRTK for ROS development will not be supported on other platforms.
 
-## Installing ROS2
+### Prerequsitites
+* [Unity 2020.3 or later](https://unity.com/)
+* [Microsoft Mixed Reality Toolkit](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/?view=mrtkunity-2021-05)
+* [Nuget for Unity 3.02 or later](https://github.com/GlitchEnzo/NuGetForUnity/releases)
+* [Microsoft Mixed Reality QR Nuget](https://nuget.org/Packages/Microsoft.MixedReality.QR)
 
-Please follow the [Microsoft ROS 2 Getting Started instructions](http://aka.ms/ros/setup_ros2).
+### Create your application
 
-> If you are targetting Hololens 2, please add the ARM64 workloads.
+* Create a 3D Unity application, and set up for Windows Mixed Reality using the instructions provided by the [Microsoft Mixed Reality Toolkit](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/?view=mrtkunity-2021-05) documentation.
+* Add Nuget for unity to your application by double clicking the the `NuGetForUnity.3.0.2.unitypackage`. Restart Unity for this to take effect.
+* In the Menu for Unity, select `NuGet`, then `Manage Packages`. 
+* In the Search edit box, enter `Microsoft.MixedReality.QR`, then click search. Install 0.5.3 or later.
+* In the `Window` Menu, select `Package Manager`. 
+* Select `+`, then `Add Package from Git Url`. enter `http://aka.ms/ros/mrtk_native`
+* Select `+`, then `Add Package from Git Url`. enter `http://aka.ms/ros/mrtk`
 
-To help bootstrap your application, we also recommend setting up a [Nav2 simulation environment](https://ms-iot.github.io/ROSOnWindows/ros2/nav2.html), which can be used in VR mode.
-
-## Running in the Unity editor
-***coming soon***
-
-# Bootstrapping your Mixed Reality Toolkit Application
-
-  * Clone this repository to your computer.
-  * Open the Unity Hub
-  * Select add a project
-  * Open the SampleProject from this repository.
-  * Ensure that your Unity project is using the `.NET 4.x` Api Compatibility Level (Edit > Project Settings > Player > Other Settings > Api Compatibility Level)
-  * ### For manipulating ROS2 robots within Unity:
-
-    * Copy the contents of the 'Ros2Module' directory from the root of this repository into the SampleProject/Assets folder
-    * Open up `SampleProject/Assets/csc.rsp` in a text editor and uncomment the `#-define:ROS2_MODULE_LIDAR` line (remove the '#' character at the start of the line)
-  * Create a Blank GameObject
-  * Add the LidarVisualizer.cs script and select which version of ROS you are using
-    * There may be more configuration options to set, depending on your setup
-  * Click the play button in the editor.
-
-If configured properly, lidar data should be getting fed in from ROS and displayed in the scene.
-
+You can now add scenes from the ROS MRTK extension or use individual components in your application.
 
 # Contributions
 Contributions are welcome. Refer to the [Contribution Process](CONTRIBUTING.md) for more details.
 
-
-# Troubleshooting
-During development, Unity's cache can become corrupted. If you encounter build or runtime errors in Unity, try these.
-
-  * Shutdown Unity
-  * Delete the Plugins folder
-  * Recopy plugins
 
 [^1]: ROS is a trademark of Open Robotics.

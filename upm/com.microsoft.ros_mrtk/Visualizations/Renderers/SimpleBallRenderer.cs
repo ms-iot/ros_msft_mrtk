@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class BallRenderer : ISpaceRenderer
 {
@@ -14,15 +15,17 @@ public class BallRenderer : ISpaceRenderer
     protected GameObject[] _ballCache;
     protected int _ballCacheSize;
 
+    const string _prefabName = "Packages/com.microsoft.ros_mrtk/Prefabs/LidarBall.prefab";
+
     protected LidarVisualizer _owner;
 
     public BallRenderer()
     {
-        _ballPrefab = Resources.Load<GameObject>("Sphere");
+        _ballPrefab = AssetDatabase.LoadAssetAtPath(_prefabName, typeof(GameObject)) as GameObject;
 
         if (_ballPrefab == null)
         {
-            Debug.LogError("BallRenderer failed to locate the ball prefab!");
+            Debug.LogError($"BallRenderer failed to locate the {_prefabName} prefab!");
         }
     }
 
