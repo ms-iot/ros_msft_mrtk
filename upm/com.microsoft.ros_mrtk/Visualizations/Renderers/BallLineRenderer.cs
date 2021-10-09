@@ -1,16 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 public class BallLineRenderer : BallRenderer
 {
-    const string _lidarMaterialName = "Packages/com.microsoft.ros_mrtk/Materials/LidarLine.mat";
+    const string _lidarMaterialName = "LidarLine.mat";
     Material _material;
 
     public BallLineRenderer() : base()
     {
-        _material = AssetDatabase.LoadAssetAtPath(_lidarMaterialName, typeof(Material)) as Material;
+        _material = Resources.Load<Material>(_lidarMaterialName);
         if (_material == null)
         {
             Debug.LogError($"BallLineRenderer failed to locate the {_lidarMaterialName} material!");
@@ -35,11 +34,14 @@ public class BallLineRenderer : BallRenderer
                 line.startWidth = 0.01f;
                 line.endWidth = 0.01f;
             }
-            
-            // wake up/activate the object if it wasn't used last frame
-            line.enabled = true;
-            line.SetPosition(0, _ballCache[i].transform.position);
-            line.SetPosition(1, origin.position);
+
+            if (line != null)
+            {
+                // wake up/activate the object if it wasn't used last frame
+                line.enabled = true;
+                line.SetPosition(0, _ballCache[i].transform.position);
+                line.SetPosition(1, origin.position);
+            }
         }
     }
 }

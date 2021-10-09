@@ -15,14 +15,13 @@ public class BallRenderer : ISpaceRenderer
     protected GameObject[] _ballCache;
     protected int _ballCacheSize;
 
-    const string _prefabName = "Packages/com.microsoft.ros_mrtk/Prefabs/LidarBall.prefab";
+    const string _prefabName = "LidarBall.prefab";
 
     protected LidarVisualizer _owner;
 
     public BallRenderer()
     {
-        _ballPrefab = AssetDatabase.LoadAssetAtPath(_prefabName, typeof(GameObject)) as GameObject;
-
+        _ballPrefab = Resources.Load<GameObject>(_prefabName);
         if (_ballPrefab == null)
         {
             Debug.LogError($"BallRenderer failed to locate the {_prefabName} prefab!");
@@ -36,6 +35,11 @@ public class BallRenderer : ISpaceRenderer
 
     public virtual void Render(float[] lidarData, Transform origin)
     {
+        if (_ballPrefab == null)
+        {
+            return;
+        }
+        
         if (_ballCache == null)
         {
             _ballCache = new GameObject[lidarData.Length];
