@@ -375,24 +375,32 @@ public class QRSpacePinGroup : MonoBehaviour
     /// <param name="qrCode">The qr code to process.</param>
     private void OnQRCodeAdded(QRCode qrCode)
     {
-        if (enumerationFinished)
+        string frameId;
+        if (ExtractFrameId(qrCode, out frameId))
         {
-            string frameId;
-            if (ExtractFrameId(qrCode, out frameId))
+            if (spacePins.ContainsKey(frameId) == false)
             {
-                TfVector3? vecTF = spacePinningService.SharedListener.LookupTranslation("odom", frameId);
-                TfQuaternion? quatTF = spacePinningService.SharedListener.LookupRotation("odom", frameId);
+                Vector3 vecU = Vector3.zero;
+                Quaternion quatU = Quaternion.identity;
+                TfVector3? vecTF = spacePinningService.SharedListener.LookupTranslation("map", frameId);
+                TfQuaternion? quatTF = spacePinningService.SharedListener.LookupRotation("map", frameId);
 
-                Vector3 vecU = TransformHelper.VectorTfToUnity(vecTF.Value);
-                Quaternion quatU = new Quaternion((float) quatTF.Value.x, (float) quatTF.Value.y, (float) quatTF.Value.z, (float) quatTF.Value.w);
-
+                if (vecTF.HasValue == false || quatTF.HasValue == false)
+                {
+                    Debug.LogWarning($"Could not find a ROS transform from map to {frameId}; assuming map == frameId");
+                }
+                else
+                {
+                    vecU = TransformHelper.VectorTfToUnity(vecTF.Value);
+                    quatU = new Quaternion((float)quatTF.Value.x, (float)quatTF.Value.y, (float)quatTF.Value.z, (float)quatTF.Value.w);
+                }
 
                 var qrCodeLocationInROSSpace = new GameObject(frameId);
-                qrCodeLocationInROSSpace.transform.parent = WorldLockingManager.GetInstance().AdjustmentFrame.transform;
+                    qrCodeLocationInROSSpace.transform.parent = this.transform;
 
                 qrCodeLocationInROSSpace.transform.SetPositionAndRotation(vecU, quatU);
 
-                SpacePinPackage.Create(this, qrCodeLocationInROSSpace.transform);
+                spacePins[frameId] = SpacePinPackage.Create(this, qrCodeLocationInROSSpace.transform);
             }
         }
     }
@@ -450,21 +458,25 @@ public class QRSpacePinGroup : MonoBehaviour
 
         if (System.Uri.TryCreate(uri, System.UriKind.Absolute, out rosUri))
         {
-            frameId = spacePinningService.DefaultFrameId;
-
             // Quick test to see if this is a ROS QRCode
-            if (rosUri.AbsolutePath.StartsWith(spacePinningService.URIPrefix))
+            if (rosUri.AbsoluteUri.StartsWith(spacePinningService.URIPrefix))
             {
-                // var queryParameters = System.Web.HttpUtility.ParseQueryString(rosUri.Query); // Not easily available in unity.
+                // var queryParameters = System.Web.HttpUtility.ParseQueryString(rosUri.Query); // System.Web.Utilities is not available in unity directly.
 
                 var queryParameters = rosUri.Query
                     .Substring(1)   // Remove the question mark
                     .Split('&')     // split result into key=value pairs
                     .Select(queryParams => queryParams.Split('='))  // split into key & value
-                    .ToDictionary(queryParam => queryParam.FirstOrDefault(), queryParam => queryParam.Skip(1).FirstOrDefault());    // turn into dictionary
+                    .ToDictionary(  // turn into dictionary
+                            queryParam => queryParam.FirstOrDefault(), // Key
+                            queryParam => queryParam.Skip(1).FirstOrDefault());    // value
 
                 // if no frameId specified, use the system default
-                queryParameters.TryGetValue("frame", out frameId);
+                if (queryParameters.TryGetValue("frame", out frameId) == false||
+                    string.IsNullOrEmpty(frameId))
+                {
+                    frameId = spacePinningService.DefaultFrameId;
+                }
 
                 return true;
             }

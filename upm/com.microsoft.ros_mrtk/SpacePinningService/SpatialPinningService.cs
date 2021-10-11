@@ -151,7 +151,6 @@ public class SpatialPinningService : BaseExtensionService, ISpatialPinningServic
                 _qrWatcher.Updated += OnQRCodeUpdatedEvent;
                 _qrWatcher.Removed += OnQRCodeRemovedEvent;
                 _qrWatcher.EnumerationCompleted += OnQREnumerationEnded;
-                _qrWatcher.Start();
             }
         }
     }

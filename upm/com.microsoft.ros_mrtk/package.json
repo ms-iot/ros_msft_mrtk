@@ -7,6 +7,7 @@
   "unityRelease": "0b5",
   "dependencies": {
     "com.microsoft.ros_mrtk_native": "0.0.1",
+    "com.microsoft.mixedreality.openxr": "1.0.3",
     "com.microsoft.mixedreality.toolkit.foundation": "2.7.2",
     "com.microsoft.mixedreality.toolkit.extensions": "2.7.2",
     "com.microsoft.mixedreality.toolkit.standardassets": "2.7.2",

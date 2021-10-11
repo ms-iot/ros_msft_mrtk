@@ -38,6 +38,7 @@ public class LidarVisualizerEditor : Editor
     {
         serializedObject.Update();
 
+        EditorGUILayout.PropertyField(topic);
         EditorGUILayout.PropertyField(renderCallsPerSecond);
         EditorGUILayout.PropertyField(lidarResolution);
         EditorGUILayout.PropertyField(worldScale);
@@ -51,7 +52,6 @@ public class LidarVisualizerEditor : Editor
                 EditorGUILayout.PropertyField(randomRange);
                 break;
             case LidarDataProviderClass.ROS2:
-            // TODO
                 break;
         }
 

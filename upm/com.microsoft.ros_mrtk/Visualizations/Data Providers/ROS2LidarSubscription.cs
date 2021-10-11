@@ -20,7 +20,7 @@ public class ROS2LidarSubscription : ILidarDataProvider
     {
         _r2l = ROS2Listener.instance;
         _sub = _r2l.node.CreateSubscription<LaserScan>(
-            "scan", msg => {                                // TODO: Scan should be configurable
+            _owner.topic, msg => {
                 _curScan = msg;
             }, ROS2.Utils.QosProfile.Profile.SensorData);
     }
