@@ -15,9 +15,8 @@ public class LidarVisualizer : MonoBehaviour
     [SerializeField]
     [Tooltip("The number of times per second that the lidar is queried and the visualization is updated.")]
     [Range(1, 30)]
-    private int renderCallsPerSecond = 1;
-    public int lidarResolution = 360;       // TODO: This should come from the subscription
-    public float worldScale = 1f;
+    public int renderCallsPerSecond = 1;
+    public int lidarResolution = 360;
     public Vector2 randomRange = new Vector2(0.1f, 0.5f);
     public float ringHeight = 1f;
 
@@ -44,6 +43,20 @@ public class LidarVisualizer : MonoBehaviour
     private SpaceRendererClass spaceRendererType = SpaceRendererClass.BALL;
 
     /// <summary>
+    /// Used to set the ball prefab
+    /// </summary>
+    [SerializeField]
+    [Tooltip("Ball Visualization Prefab.")]
+    public GameObject ballPrefab = null;
+
+    /// <summary>
+    /// Used to set the ball line material
+    /// </summary>
+    [SerializeField]
+    [Tooltip("Material for Ball Line Visualization.")]
+    public Material ballLineMaterial = null;
+
+    /// <summary>
     /// The renderer class instance, used to render a given set of lidar data
     /// </summary>
     private ISpaceRenderer _renderer;
@@ -63,10 +76,9 @@ public class LidarVisualizer : MonoBehaviour
     /// <summary>
     /// Queries the lidar and renders the updated information
     /// </summary>
-    private void RegenerateSite()
+    public void RegenerateSite()
     {
-        float[] data = _provider.Query();
-        _renderer.Render(data, transform);
+        _renderer.Render(_provider.Query(), transform);
         
     }
 }

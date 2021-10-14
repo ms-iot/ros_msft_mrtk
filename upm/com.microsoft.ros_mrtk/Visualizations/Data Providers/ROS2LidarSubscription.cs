@@ -18,6 +18,12 @@ public class ROS2LidarSubscription : ILidarDataProvider
 
     public ROS2LidarSubscription()
     {
+    }
+
+    public void Config(LidarVisualizer viz)
+    {
+        _owner = viz;
+
         _r2l = ROS2Listener.instance;
         _sub = _r2l.node.CreateSubscription<LaserScan>(
             _owner.topic, msg => {
@@ -25,85 +31,59 @@ public class ROS2LidarSubscription : ILidarDataProvider
             }, ROS2.Utils.QosProfile.Profile.SensorData);
     }
 
-    public void Config(LidarVisualizer viz)
+    public LaserScan Query()
     {
-        _owner = viz;
-    }
-
-    public float[] Query()
-    {
-        if (_curScan != null)
+        CleanData((flt) =>
         {
-            var ranges = _curScan.Ranges.ToArray();
-            if (ranges.Length != _owner.lidarResolution)
-            {
-                Debug.LogError(@"ROS2 subscription is reading lidar
-                    data of different resolution than configured!
-                    expected: " + _owner.lidarResolution + ", recieved: " + ranges.Length);
-                return new float[_owner.lidarResolution];
-            }
-            CleanData(ref ranges);
-            return ranges;
-        }
-        else
-        {
-            return new float[_owner.lidarResolution];
-        }
-    }
-
-    private void CleanData(ref float[] lidarData)
-    {
-        LinearlyInterpolateDeadPoints(ref lidarData, (flt) =>
-        {
-            return float.IsInfinity(flt) || flt < 0.01f;
+            return (flt > _curScan.Range_max) || (flt < _curScan.Range_min);
         });
-    }
 
+        return _curScan;
+    }
     /// <summary>
     /// Runs through the lidarData array/loop, replacing all points in the array classified as "dead" by the predicate
     /// with a linear interpolation value with the nearest non-dead values.
     /// </summary>
-    /// <param name="lidarData">A reference to an array, representing the lidar data ring (0th el is next to last el).</param>
     /// <param name="deadPointClassify">A predicate function, which, given a float, returns if it is invalid (dead) data or not.</param>
-    private void LinearlyInterpolateDeadPoints(ref float[] lidarData, Predicate<float> deadPointClassify)
+    private void CleanData(Predicate<float> deadPointClassify)
     {
         //////////////////////////////////////////////////
         /// Edge Case - Loop edge element needs lerping
         {
-            int startInd = lidarData.Length - 1;
+            int startInd = _curScan.Ranges.Count - 1;
             int endInd = 0;
             int gap = 0;
-            if (deadPointClassify(lidarData[0]))
+            if (deadPointClassify(_curScan.Ranges[0]))
             {
                 gap++;
-                for (int i = 1; i < lidarData.Length; i++)
+                for (int i = 1; i < _curScan.Ranges.Count; i++)
                 {
-                    if (!deadPointClassify(lidarData[i]))
+                    if (!deadPointClassify(_curScan.Ranges[i]))
                     {
                         gap += i - 1;
                         endInd = i;
                         break;
                     }
                 }
-                for (int i = 1; i < lidarData.Length; i++)
+                for (int i = 1; i < _curScan.Ranges.Count; i++)
                 {
-                    if (!deadPointClassify(lidarData[lidarData.Length - i]))
+                    if (!deadPointClassify(_curScan.Ranges[_curScan.Ranges.Count - i]))
                     {
                         gap += i - 1;
-                        startInd = lidarData.Length - i;
+                        startInd = _curScan.Ranges.Count - i;
                         break;
                     }
                 }
             }
-            else if (deadPointClassify(lidarData[lidarData.Length - 1]))
+            else if (deadPointClassify(_curScan.Ranges[_curScan.Ranges.Count - 1]))
             {
                 gap++;
-                for (int i = 1; i < lidarData.Length; i++)
+                for (int i = 1; i < _curScan.Ranges.Count; i++)
                 {
-                    if (!deadPointClassify(lidarData[lidarData.Length - i]))
+                    if (!deadPointClassify(_curScan.Ranges[_curScan.Ranges.Count - i]))
                     {
                         gap += i - 2;
-                        startInd = lidarData.Length - i;
+                        startInd = _curScan.Ranges.Count - i;
                         break;
                     }
                 }
@@ -113,10 +93,10 @@ public class ROS2LidarSubscription : ILidarDataProvider
                 float ctr = 1f;
                 for (int i = startInd + 1; i < startInd + gap + 1; i++)
                 {
-                    int boundedInd = i % lidarData.Length;
+                    int boundedInd = i % _curScan.Ranges.Count;
                     float frac = ctr / (1f + (float)gap);
-                    lidarData[boundedInd] = Mathf.Lerp(lidarData[startInd],
-                        lidarData[endInd], frac);
+                    _curScan.Ranges[boundedInd] = Mathf.Lerp(_curScan.Ranges[startInd],
+                        _curScan.Ranges[endInd], frac);
                     ctr++;
                 }
             }
@@ -125,18 +105,18 @@ public class ROS2LidarSubscription : ILidarDataProvider
         //////////////////////////////////////////////////
         /// Base Case - Center portion of array
         {
-            for (int i = 1; i < lidarData.Length - 1; i++)
+            for (int i = 1; i < _curScan.Ranges.Count - 1; i++)
             {
                 // If the point is dead, start looking for the nearest
                 // non-dead points to the left and right of it.
-                if (deadPointClassify(lidarData[i]))
+                if (deadPointClassify(_curScan.Ranges[i]))
                 {
                     int startInd = i - 1;
                     int endInd = i;
                     int gap = 1;
-                    for (int j = 1; i + j < lidarData.Length; j++)
+                    for (int j = 1; i + j < _curScan.Ranges.Count; j++)
                     {
-                        if (!deadPointClassify(lidarData[i + j]))
+                        if (!deadPointClassify(_curScan.Ranges[i + j]))
                         {
                             gap = j;
                             endInd = i + j;
@@ -149,8 +129,8 @@ public class ROS2LidarSubscription : ILidarDataProvider
                     for (int j = startInd + 1; j < endInd; j++)
                     {
                         float frac = ctr / (1f + (float)gap);
-                        lidarData[j] = Mathf.Lerp(lidarData[startInd],
-                            lidarData[endInd], frac);
+                        _curScan.Ranges[j] = Mathf.Lerp(_curScan.Ranges[startInd],
+                            _curScan.Ranges[endInd], frac);
                         ctr++;
                     }
                 }

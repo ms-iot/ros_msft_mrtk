@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using sensor_msgs.msg;
 
 
 /// <summary>
@@ -10,23 +11,32 @@ public class SimpleRandomDataProvider : ILidarDataProvider
 {
     private LidarVisualizer _owner;
     // only allocate one array for this implementation
-    protected float[] _reserved;
+    protected List<float> _reserved;
 
     public SimpleRandomDataProvider() { }
 
     public void Config(LidarVisualizer viz)
     {
         _owner = viz;
-        _reserved = new float[_owner.lidarResolution];
+        _reserved = new List<float>(_owner.lidarResolution);
     }
 
-    public float[] Query()
+    public LaserScan Query()
     {
-        for (int i = 0; i < _reserved.Length; i++)
+        LaserScan scan = new LaserScan();
+        scan.Angle_min = 0;
+        scan.Angle_max = 360;
+        scan.Angle_increment = 1;
+        scan.Scan_time = _owner.renderCallsPerSecond;
+        scan.Time_increment = _owner.renderCallsPerSecond;
+        scan.Ranges = _reserved;
+
+        for (int i = 0; i < _reserved.Capacity; i++)
         {
             _reserved[i] = Random.Range(_owner.randomRange.x, _owner.randomRange.y);
         }
-        return _reserved;
+        
+        return scan;
     }
 }
 
