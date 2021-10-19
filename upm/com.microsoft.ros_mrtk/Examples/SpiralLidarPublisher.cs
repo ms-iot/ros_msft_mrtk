@@ -6,7 +6,7 @@ using UnityEngine;
 using sensor_msgs.msg;
 
 
-public class SpiralLidar : MonoBehaviour
+public class SpiralLidarPublisher : MonoBehaviour
 {
     IPublisher<LaserScan> scanPub;
     LaserScan scan = new LaserScan();

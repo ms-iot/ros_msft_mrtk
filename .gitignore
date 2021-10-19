@@ -11,6 +11,7 @@
 *.userosscache
 *.sln.docstates
 
+upm/com.microsoft.ros_mrtk/*.tgz*
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

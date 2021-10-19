@@ -24,5 +24,13 @@
     "email": "riotsquad@microsoft.com",
     "url": "https://aka.ms/ros/mrtk"
   },
-  "hideInEditor": false
-}
+  "hideInEditor": false,
+  "samples": [
+    {
+ 
+      "displayName": "Basic ROS World",
+      "description": "ROS World with Spatial Pinning and Lidar Visualization",
+      "path": "Samples~/BasicROSWorld"
+    }
+  ]
+ }
