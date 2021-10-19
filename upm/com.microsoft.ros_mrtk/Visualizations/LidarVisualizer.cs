@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using sensor_msgs.msg;
 
 
 /// <summary>
@@ -15,29 +16,48 @@ public class LidarVisualizer : MonoBehaviour
     [SerializeField]
     [Tooltip("The number of times per second that the lidar is queried and the visualization is updated.")]
     [Range(1, 30)]
-    private int renderCallsPerSecond = 1;
+    public int renderCallsPerSecond = 1;
     public int lidarResolution = 360;
-    public float worldScale = 1f;
-    public Vector2 randomRange;
+    public Vector2 randomRange = new Vector2(0.1f, 0.5f);
     public float ringHeight = 1f;
+    public bool spiral = false;
 
     /// <summary>
     /// An enum, used solely to acquire _provider using the factory class found in ILidarDataProvider.cs
     /// </summary>
     [SerializeField]
-    [Tooltip("Specifies which data provider class (implements ILidarDataProvider) to use in querying for lidar data.")]
+    [Tooltip("Specifies which data provider class to use in querying for lidar data.")]
     private LidarDataProviderClass lidarDataProviderType = LidarDataProviderClass.SIMPLE_RANDOM;
     /// <summary>
     /// The data provider class instance, used to query for lidar data.
     /// </summary>
     private ILidarDataProvider _provider;
 
+    [SerializeField]
+    [Tooltip("Laser Scan topic.")]
+    public string topic = "/scan";
+
     /// <summary>
     /// An enum, used solely to acquire _renderer using the factory class found in ISpaceRenderer.cs
     /// </summary>
     [SerializeField]
-    [Tooltip("Specifies which renderer class (implements ISpaceRenderer) to use in visualizing the lidar data.")]
+    [Tooltip("Specifies which renderer class to use in visualizing the lidar data.")]
     private SpaceRendererClass spaceRendererType = SpaceRendererClass.BALL;
+
+    /// <summary>
+    /// Used to set the ball prefab
+    /// </summary>
+    [SerializeField]
+    [Tooltip("Ball Visualization Prefab.")]
+    public GameObject ballPrefab = null;
+
+    /// <summary>
+    /// Used to set the ball line material
+    /// </summary>
+    [SerializeField]
+    [Tooltip("Material for Ball Line Visualization.")]
+    public Material ballLineMaterial = null;
+
     /// <summary>
     /// The renderer class instance, used to render a given set of lidar data
     /// </summary>
@@ -58,10 +78,12 @@ public class LidarVisualizer : MonoBehaviour
     /// <summary>
     /// Queries the lidar and renders the updated information
     /// </summary>
-    private void RegenerateSite()
+    public void RegenerateSite()
     {
-        float[] data = _provider.Query();
-        _renderer.Render(data, transform);
-        
+        LaserScan scan = _provider.Query();
+        if (scan != null)
+        {
+            _renderer.Render(scan, transform);
+        }
     }
 }

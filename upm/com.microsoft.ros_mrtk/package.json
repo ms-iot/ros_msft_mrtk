@@ -1,24 +1,28 @@
 {
-    "name": "com.microsoft.ros_mrtk",
-    "version": "0.0.1",
-    "displayName": "ROS2 and ROS2.net UI Components for Unity",
-    "description": "Use ROS2 from within Unity!",
-    "unity": "2019.1",
-    "unityRelease": "0b5",
-    "dependencies": {
-      "com.microsoft.ros_mrtk_native": "0.0.1"
-    },
-   "keywords": [
-      "ROS",
-      "ROS2",
-      "Windows",
-      "Hololens",
-      "MRTK"
-    ],
-    "author": {
-      "name": "Microsoft",
-      "email": "riotsquad@microsoft.com",
-      "url": "https://aka.ms/ros/mrtk"
-    }
-  }
-  
+  "name": "com.microsoft.ros_mrtk",
+  "version": "0.0.1",
+  "displayName": "ROS2 and ROS2.net UI Components for Unity",
+  "description": "Use ROS2 from within Unity!",
+  "unity": "2020.3",
+  "unityRelease": "0b5",
+  "dependencies": {
+    "com.microsoft.ros_mrtk_native": "0.0.1",
+    "com.microsoft.mixedreality.openxr": "1.0.3",
+    "com.microsoft.mixedreality.toolkit.foundation": "2.7.2",
+    "com.microsoft.mixedreality.toolkit.extensions": "2.7.2",
+    "com.microsoft.mixedreality.toolkit.standardassets": "2.7.2",
+    "com.microsoft.mixedreality.worldlockingtools": "1.5.3"
+  },
+  "keywords": [
+    "ROS2",
+    "Windows",
+    "Hololens",
+    "MRTK"
+  ],
+  "author": {
+    "name": "Microsoft",
+    "email": "riotsquad@microsoft.com",
+    "url": "https://aka.ms/ros/mrtk"
+  },
+  "hideInEditor": false
+}

@@ -28,6 +28,11 @@ public class ROS2Listener : MonoBehaviour
     {
         // attempt to find an instance already in the scene
         var instance = FindObjectOfType<ROS2Listener>();
+        if (instance != null)
+        {
+            Debug.LogWarning("ROS2 Listender is already in the scene");
+            return instance;
+        }
 
         Debug.Log("ROS is Awake");
 

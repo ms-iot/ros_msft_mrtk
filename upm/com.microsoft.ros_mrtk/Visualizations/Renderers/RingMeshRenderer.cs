@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
+using sensor_msgs.msg;
 
 public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
 {
@@ -50,13 +51,13 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
         return output;
     }
 
-    public void Render(float[] lidarData, Transform origin)
+    public void Render(LaserScan lidarData, Transform origin)
     {
         if (_meshHolder == null)
         {
             Init(origin);
         }
-        if (lidarData.Length != _logicalVertsCount)
+        if (lidarData.Ranges.Count != _logicalVertsCount)
         {
             Debug.LogWarning("Renderer is configured to handle different resolution of lidar data than it is being passed.");
         }
@@ -66,10 +67,10 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
             // vInd = index for column in the ladder; 
             //   vInd+1 = second ring/top of column which
             //   should vary from vInd only by y displacement
-            float rad = (((float)(vInd/2) / (float)lidarData.Length) * (2 * Mathf.PI)) - (Mathf.PI / 2);
-            // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
-            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[vInd / 2] * _owner.worldScale;
-            _verts[vInd] = offset;
+            float rad = (((float)(vInd/2) / (float)lidarData.Ranges.Count) * (lidarData.Angle_min + vInd * lidarData.Angle_increment)) - (Mathf.PI / 2);
+
+            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData.Ranges[vInd / 2];
+                        _verts[vInd] = offset;
             _verts[vInd + 1] = offset + Vector3.up * _owner.ringHeight;
 
         }

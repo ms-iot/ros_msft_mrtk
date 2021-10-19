@@ -1,14 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using sensor_msgs.msg;
 
 public interface ISpaceRenderer
 {
     /// <summary>
     /// Renders a frame of the visualization, cleaning up the previous frame if necessary
     /// </summary>
-    void Render(float[] lidarData, Transform origin);
+    void Render(LaserScan scan, Transform origin);
     void Config(LidarVisualizer viz);
 }
 

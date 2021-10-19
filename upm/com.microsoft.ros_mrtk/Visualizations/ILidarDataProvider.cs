@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using sensor_msgs.msg;
 
 public interface ILidarDataProvider
 {
     // probably will become async in future, not sure what the ROS framework entails
-    float[] Query();
+    LaserScan Query();
     void Config(LidarVisualizer viz);
 }
 

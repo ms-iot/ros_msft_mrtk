@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
+using sensor_msgs.msg;
 
 public class BallRenderer : ISpaceRenderer
 {
@@ -18,28 +20,28 @@ public class BallRenderer : ISpaceRenderer
 
     public BallRenderer()
     {
-        _ballPrefab = Resources.Load<GameObject>("Sphere");
-
-        if (_ballPrefab == null)
-        {
-            Debug.LogError("BallRenderer failed to locate the ball prefab!");
-        }
     }
 
-    public void Config(LidarVisualizer viz)
+    public virtual void Config(LidarVisualizer viz)
     {
         _owner = viz;
+        _ballPrefab = _owner.ballPrefab;
     }
 
-    public virtual void Render(float[] lidarData, Transform origin)
+    public virtual void Render(LaserScan lidarData, Transform origin)
     {
+        if (_ballPrefab == null)
+        {
+            return;
+        }
+        
         if (_ballCache == null)
         {
-            _ballCache = new GameObject[lidarData.Length];
-            _ballCacheSize = lidarData.Length;
+            _ballCacheSize = lidarData.Ranges.Count;
+            _ballCache = new GameObject[_ballCacheSize];
         }
 
-        ResizeCache(lidarData.Length);
+        ResizeCache(lidarData.Ranges.Count);
 
         for (int i = 0; i < _ballCacheSize; i++)
         {
@@ -48,12 +50,22 @@ public class BallRenderer : ISpaceRenderer
                 GameObject ball = GameObject.Instantiate(_ballPrefab, origin);
                 _ballCache[i] = ball;
             }
-            float rad = ((float)i / (float)lidarData.Length) * (2 * Mathf.PI);
-            // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
-            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData[i] * _owner.worldScale;  
-            // wake up/activate the object if it wasn't used last frame
-            _ballCache[i].SetActive(true);
-            _ballCache[i].transform.localPosition = offset;
+
+
+            if ((lidarData.Ranges[i] > lidarData.Range_max) || (lidarData.Ranges[i] < lidarData.Range_min))
+            {
+                // Don't show data out of range
+                _ballCache[i].SetActive(false);
+            }
+            else
+            {
+                float rad = lidarData.Angle_min + i * lidarData.Angle_increment; 
+                Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData.Ranges[i];
+
+                // wake up/activate the object if it wasn't used last frame
+                _ballCache[i].SetActive(true);
+                _ballCache[i].transform.localPosition = offset;
+            }
         }
     }
 
@@ -70,7 +82,8 @@ public class BallRenderer : ISpaceRenderer
             }
             _ballCacheSize = size;
             
-        } else if (size > _ballCacheSize)
+        } 
+        else if (size > _ballCacheSize)
         {
             // only rebuild the entire array if the new size exceeds the PHYSICAL size of the cache
             if (size > _ballCache.Length)

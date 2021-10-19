@@ -1,81 +1,49 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using sensor_msgs.msg;
 
 public class BallLineRenderer : BallRenderer
 {
-    private LineRenderer[] _lineCache;
-    private int _lineCacheSize;
+    Material _material;
 
     public BallLineRenderer() : base()
     {
-
     }
 
-    public override void Render(float[] lidarData, Transform origin)
+    public override void Config(LidarVisualizer viz)
+    {
+        base.Config(viz);
+        _material = _owner.ballLineMaterial;
+    }
+
+    public override void Render(LaserScan scan, Transform origin)
     {
         // Move the balls
-        base.Render(lidarData, origin);
+        base.Render(scan, origin);
 
-        if (_lineCache == null)
+        if (_material != null)
         {
-            _lineCache = new LineRenderer[lidarData.Length];
-            _lineCacheSize = lidarData.Length;
-        }
-
-        ResizeCache(lidarData.Length);
-
-        for (int i = 0; i < _lineCacheSize; i++)
-        {
-            if (_lineCache[i] == null)
+            for (int i = 0; i < _ballCache.Length; i++)
             {
-                LineRenderer line = _ballCache[i].GetComponent<LineRenderer>();
-                line.startColor = Color.blue;
-                line.startWidth = 0.1f;
-                line.endWidth = 0.1f;
-                _lineCache[i] = line;
-            }
-            
-            // wake up/activate the object if it wasn't used last frame
-            _lineCache[i].enabled = true;
-            _lineCache[i].SetPosition(0, _ballCache[i].transform.position);
-            _lineCache[i].SetPosition(1, origin.position);
-        }
-
-    }
-
-    private void ResizeCache(int size)
-    {
-        if (size < _lineCacheSize)
-        {
-            // If the cache needs to be smaller, just update the size 
-            // the slots of _ballCache after size are now logically 'garbage'
-            // and should not be rendered
-            for (int i = size; i < _lineCacheSize; i++)
-            {
-                _lineCache[i].enabled = false;
-            }
-            _lineCacheSize = size;
-
-        }
-        else if (size > _lineCacheSize)
-        {
-            // only rebuild the entire array if the new size exceeds the PHYSICAL size of the cache
-            if (size > _lineCache.Length)
-            {
-                LineRenderer[] newCache = new LineRenderer[size];
-                for (int i = 0; i < _lineCacheSize; i++)
+                LineRenderer line = null;
+                if (_ballCache[i].TryGetComponent<LineRenderer>(out line) == false)
                 {
-                    newCache[i] = _lineCache[i];
+                    line = _ballCache[i].AddComponent<LineRenderer>() as LineRenderer;
+                    line.material = _material;
+                    line.endColor = new Color(0f, 0f, 0f, 0f);
+                    line.startColor = new Color(.5f, 0f, 0f, .5f);
+                    line.startWidth = 0.01f;
+                    line.endWidth = 0.01f;
                 }
-                _lineCache = newCache;
-            }
 
-            _lineCacheSize = size;
-
-            for (int i = 0; i < _lineCacheSize; i++)
-            {
-                _lineCache[i].enabled = true;
+                if (line != null)
+                {
+                    // wake up/activate the object if it wasn't used last frame
+                    line.enabled = _ballCache[i].activeSelf;
+                    line.SetPosition(0, _ballCache[i].transform.position);
+                    line.SetPosition(1, origin.position);
+                }
             }
         }
     }

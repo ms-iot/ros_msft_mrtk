@@ -1,3 +1,26 @@
 {
-	"name": "ros_mrtk"
+    "name": "ros_mrtk",
+    "rootNamespace": "",
+    "references": [
+        "Microsoft.MixedReality.Toolkit",
+        "Microsoft.MixedReality.OpenXR",
+        "Microsoft.MixedReality.Toolkit.UI",
+        "Microsoft.MixedReality.WorldLocking.Core",
+        "Microsoft.MixedReality.WorldLocking.Tools"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.microsoft.mixedreality.openxr",
+            "expression": "",
+            "define": "WLT_MICROSOFT_OPENXR_PRESENT"
+        }
+    ],
+    "noEngineReferences": false
 }

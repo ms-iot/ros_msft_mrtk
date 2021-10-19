@@ -10,37 +10,41 @@ public class LidarVisualizerEditor : Editor
     // global settings
     SerializedProperty renderCallsPerSecond;
     SerializedProperty lidarResolution;
-    SerializedProperty worldScale;
 
     SerializedProperty lidarDataProviderType;
     SerializedProperty randomRange;
+    SerializedProperty spiral;
     SerializedProperty topic;
     SerializedProperty spaceRendererType;
     SerializedProperty ringHeight;
+    SerializedProperty ballPrefab;
+    SerializedProperty ballLineMaterial;
 
 
 
     private void OnEnable()
     {
+        topic = serializedObject.FindProperty("topic");
+
         renderCallsPerSecond = serializedObject.FindProperty("renderCallsPerSecond");
         lidarResolution = serializedObject.FindProperty("lidarResolution");
-        worldScale = serializedObject.FindProperty("worldScale");
 
         lidarDataProviderType = serializedObject.FindProperty("lidarDataProviderType");
         randomRange = serializedObject.FindProperty("randomRange");
-        topic = serializedObject.FindProperty("topic");
+        spiral = serializedObject.FindProperty("spiral");
 
         spaceRendererType = serializedObject.FindProperty("spaceRendererType");
         ringHeight = serializedObject.FindProperty("ringHeight");
+
+        ballPrefab = serializedObject.FindProperty("ballPrefab");
+        ballLineMaterial = serializedObject.FindProperty("ballLineMaterial");
     }
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
 
-        EditorGUILayout.PropertyField(renderCallsPerSecond);
-        EditorGUILayout.PropertyField(lidarResolution);
-        EditorGUILayout.PropertyField(worldScale);
+        EditorGUILayout.PropertyField(topic);
 
         EditorGUILayout.Space();
 
@@ -49,9 +53,11 @@ public class LidarVisualizerEditor : Editor
         {
             case LidarDataProviderClass.SIMPLE_RANDOM:
                 EditorGUILayout.PropertyField(randomRange);
+                EditorGUILayout.PropertyField(renderCallsPerSecond);
+                EditorGUILayout.PropertyField(lidarResolution);
+                EditorGUILayout.PropertyField(spiral);
                 break;
             case LidarDataProviderClass.ROS2:
-            // TODO
                 break;
         }
 
@@ -62,6 +68,13 @@ public class LidarVisualizerEditor : Editor
             case SpaceRendererClass.RING_MESH:
                 EditorGUILayout.PropertyField(ringHeight);
                 break;
+            case SpaceRendererClass.BALL:
+                EditorGUILayout.PropertyField(ballPrefab);
+            break;
+            case SpaceRendererClass.BALL_LINE:
+                EditorGUILayout.PropertyField(ballPrefab);
+                EditorGUILayout.PropertyField(ballLineMaterial);
+            break;
         }
 
         serializedObject.ApplyModifiedProperties();
