@@ -7,4 +7,9 @@ and the SDK NuGet package adheres to [Semantic Versioning](http://semver.org/spe
 Refer to the [Getting Started](https://github.com/microsoft/MapsSDK-Unity/wiki/Getting-started) documentation for instructions about how to import and upgrade the SDK.
 # Mixed Reality Toolkit for ROS
 
+## 0.0.1 - ROSWorld 2021
+  * Spatial Pinning
+  * Lidar Visualization
+  * Simulated Sensor data
+
 ## 0.0.0 - Bootstrap

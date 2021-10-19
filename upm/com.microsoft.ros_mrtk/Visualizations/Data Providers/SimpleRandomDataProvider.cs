@@ -46,7 +46,6 @@ public class SimpleRandomDataProvider : ILidarDataProvider
                 scan.Ranges[i] = Random.Range(_owner.randomRange.x, _owner.randomRange.y);
             }
         }
-
         return scan;
     }
 }
