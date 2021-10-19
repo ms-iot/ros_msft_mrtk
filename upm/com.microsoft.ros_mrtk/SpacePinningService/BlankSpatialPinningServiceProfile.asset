@@ -17,3 +17,4 @@ MonoBehaviour:
   ROSNamespace: 
   ROSDefaultDomain: 0
   ROSDefaultFrameId: map
+  UseCenterOfQRCode: 1

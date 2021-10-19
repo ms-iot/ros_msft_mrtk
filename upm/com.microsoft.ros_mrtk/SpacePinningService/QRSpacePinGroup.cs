@@ -392,7 +392,17 @@ public class QRSpacePinGroup : MonoBehaviour
                 else
                 {
                     vecU = TransformHelper.VectorTfToUnity(vecTF.Value);
-                    quatU = new Quaternion((float)quatTF.Value.x, (float)quatTF.Value.y, (float)quatTF.Value.z, (float)quatTF.Value.w);
+                    quatU = TransformHelper.QuatTfToUnity(quatTF.Value);
+
+                    if (spacePinningService.UseCenterOfQRCode)
+                    {
+                        // QRCode zero is at the top left corner; but for mounting center can be better.
+                        Vector3 qrCenterOffset = new Vector3(qrCode.PhysicalSideLength / 2.0f, qrCode.PhysicalSideLength / 2.0f, 0.0f);
+                        vecU += qrCenterOffset;
+                    }
+
+                    Quaternion correction = Quaternion.Euler(-90.0f, 0.0f, 0.0f);
+                    quatU = quatU * correction;
                 }
 
                 var qrCodeLocationInROSSpace = new GameObject(frameId);

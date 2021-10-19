@@ -13,6 +13,7 @@ public class LidarVisualizerEditor : Editor
 
     SerializedProperty lidarDataProviderType;
     SerializedProperty randomRange;
+    SerializedProperty spiral;
     SerializedProperty topic;
     SerializedProperty spaceRendererType;
     SerializedProperty ringHeight;
@@ -23,12 +24,14 @@ public class LidarVisualizerEditor : Editor
 
     private void OnEnable()
     {
+        topic = serializedObject.FindProperty("topic");
+
         renderCallsPerSecond = serializedObject.FindProperty("renderCallsPerSecond");
         lidarResolution = serializedObject.FindProperty("lidarResolution");
 
         lidarDataProviderType = serializedObject.FindProperty("lidarDataProviderType");
         randomRange = serializedObject.FindProperty("randomRange");
-        topic = serializedObject.FindProperty("topic");
+        spiral = serializedObject.FindProperty("spiral");
 
         spaceRendererType = serializedObject.FindProperty("spaceRendererType");
         ringHeight = serializedObject.FindProperty("ringHeight");
@@ -52,6 +55,7 @@ public class LidarVisualizerEditor : Editor
                 EditorGUILayout.PropertyField(randomRange);
                 EditorGUILayout.PropertyField(renderCallsPerSecond);
                 EditorGUILayout.PropertyField(lidarResolution);
+                EditorGUILayout.PropertyField(spiral);
                 break;
             case LidarDataProviderClass.ROS2:
                 break;

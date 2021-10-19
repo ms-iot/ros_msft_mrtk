@@ -40,7 +40,7 @@ public class BallLineRenderer : BallRenderer
                 if (line != null)
                 {
                     // wake up/activate the object if it wasn't used last frame
-                    line.enabled = true;
+                    line.enabled = _ballCache[i].activeSelf;
                     line.SetPosition(0, _ballCache[i].transform.position);
                     line.SetPosition(1, origin.position);
                 }

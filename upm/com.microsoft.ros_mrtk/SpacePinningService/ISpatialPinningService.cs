@@ -17,6 +17,7 @@ public interface ISpatialPinningService : IMixedRealityExtensionService
 
     string URIPrefix { get; }
     string DefaultFrameId { get; }
+    bool UseCenterOfQRCode { get; }
 
     TransformListener SharedListener {get;}
 

@@ -20,4 +20,8 @@ public class SpatialPinningServiceProfile : BaseMixedRealityProfile
     [SerializeField] 
     [Tooltip("ROS Default Frame")]
     public string ROSDefaultFrameId;
+
+    [SerializeField] 
+    [Tooltip("Use Center of QRCode")]
+    public bool UseCenterOfQRCode;
 }

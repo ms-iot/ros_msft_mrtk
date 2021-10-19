@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using sensor_msgs.msg;
 
 
 /// <summary>
@@ -19,6 +20,7 @@ public class LidarVisualizer : MonoBehaviour
     public int lidarResolution = 360;
     public Vector2 randomRange = new Vector2(0.1f, 0.5f);
     public float ringHeight = 1f;
+    public bool spiral = false;
 
     /// <summary>
     /// An enum, used solely to acquire _provider using the factory class found in ILidarDataProvider.cs
@@ -78,7 +80,10 @@ public class LidarVisualizer : MonoBehaviour
     /// </summary>
     public void RegenerateSite()
     {
-        _renderer.Render(_provider.Query(), transform);
-        
+        LaserScan scan = _provider.Query();
+        if (scan != null)
+        {
+            _renderer.Render(scan, transform);
+        }
     }
 }

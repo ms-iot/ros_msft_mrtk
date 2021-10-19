@@ -67,9 +67,9 @@ public class RingMeshRenderer : MonoBehaviour, ISpaceRenderer
             // vInd = index for column in the ladder; 
             //   vInd+1 = second ring/top of column which
             //   should vary from vInd only by y displacement
-            float rad = (((float)(vInd/2) / (float)lidarData.Ranges.Count) * (2 * Mathf.PI)) - (Mathf.PI / 2);
-            // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
-            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData.Ranges[vInd / 2];  // TODO (lamadio) handle angle_min/angle_max
+            float rad = (((float)(vInd/2) / (float)lidarData.Ranges.Count) * (lidarData.Angle_min + vInd * lidarData.Angle_increment)) - (Mathf.PI / 2);
+
+            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData.Ranges[vInd / 2];
                         _verts[vInd] = offset;
             _verts[vInd + 1] = offset + Vector3.up * _owner.ringHeight;
 

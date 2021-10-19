@@ -14,7 +14,7 @@ public static class TransformHelper
     /// <returns>A vector3</returns>
     public static Vector3 VectorTfToUnity(TfVector3 vec)
     {
-        return new Vector3((float)vec.y * -1, (float)vec.z, (float)vec.x);
+        return new Vector3(-(float)vec.x, (float)vec.z, (float)vec.y);
     }
 
     /// <summary>
@@ -24,6 +24,8 @@ public static class TransformHelper
     /// <returns>A quaternion</returns>
     public static Quaternion QuatTfToUnity(TfQuaternion quat)
     {
-        return new Quaternion((float)quat.x, (float)quat.y, (float)quat.z, (float)quat.w);  // TASK: not yet implemented 
+        Quaternion tfQ = new Quaternion(-(float)quat.x, -(float)quat.z, -(float)quat.y, (float)quat.w);
+        // Right hand to Left Hand
+        return tfQ;
     }
 }

@@ -50,12 +50,22 @@ public class BallRenderer : ISpaceRenderer
                 GameObject ball = GameObject.Instantiate(_ballPrefab, origin);
                 _ballCache[i] = ball;
             }
-            float rad = ((float)i / (float)lidarData.Ranges.Count) * (2 * Mathf.PI);
-            // offset by 90 degrees so that first data point corresponds to x axis/straight ahead
-            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData.Ranges[i];        // TODO (lamadio): handle angle_min/angle_max
-            // wake up/activate the object if it wasn't used last frame
-            _ballCache[i].SetActive(true);
-            _ballCache[i].transform.localPosition = offset;
+
+
+            if ((lidarData.Ranges[i] > lidarData.Range_max) || (lidarData.Ranges[i] < lidarData.Range_min))
+            {
+                // Don't show data out of range
+                _ballCache[i].SetActive(false);
+            }
+            else
+            {
+                float rad = lidarData.Angle_min + i * lidarData.Angle_increment; 
+                Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * lidarData.Ranges[i];
+
+                // wake up/activate the object if it wasn't used last frame
+                _ballCache[i].SetActive(true);
+                _ballCache[i].transform.localPosition = offset;
+            }
         }
     }
 

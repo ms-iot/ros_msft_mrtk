@@ -117,6 +117,14 @@ public class SpatialPinningService : BaseExtensionService, ISpatialPinningServic
         } 
     }
 
+    public bool UseCenterOfQRCode 
+    { 
+        get
+        {
+            return serviceProfile.UseCenterOfQRCode;
+        } 
+    }
+
     public TransformListener SharedListener 
     {
         get
