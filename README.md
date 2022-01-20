@@ -85,7 +85,7 @@ You can now add scenes from the ROS MRTK extension or use individual components 
 ### Sample Scene to bootstrap your application
 One you have configured the application above, you can now add components to your scene to define your application. A Sample scene is provided which demonstrates spatial pinning and Lidar visualization.
 
-* In the Unity Package Manager Window, select `ROS2 and ROS2.net Native components for Unity`.
+* In the Unity Package Manager Window, select `ROS2 and ROS2.net UI components for Unity`.
 * Under the Samples dropdown, select `Basic ROS World` and select Import.
 * Drag this scene to the Unity Hierarchy Window.
 * Remove any existing scenes.
