@@ -13,7 +13,7 @@ This depends on [ROS2 Foxy UPM supplied by Microsoft](http://aka.ms/ros/mrtk_nat
 ### Prerequsitites
 * [Unity 2020.4 or later](https://unity.com/)
 * [Microsoft Mixed Reality Toolkit](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/?view=mrtkunity-2021-05)
-* [Nuget for Unity 3.02 or later](https://github.com/GlitchEnzo/NuGetForUnity/releases)
+* [Nuget for Unity 3.04 or later](https://github.com/GlitchEnzo/NuGetForUnity/releases)
 * [Microsoft Mixed Reality QR Nuget](https://nuget.org/Packages/Microsoft.MixedReality.QR)
 * Download the Unity release for the ROS2 native from [http://aka.ms/ros/mrtk_native](http://aka.ms/ros/mrtk_native)
 * Download the Unity release for the Mixed Reality Toolit for ROS2 from [http://aka.ms/ros/mrtk](http://aka.ms/ros/mrtk)
