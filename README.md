@@ -11,12 +11,14 @@ The Mixed Reality Toolkit is an Open Source framework for building Virtual Reali
 This depends on [ROS2 Foxy UPM supplied by Microsoft](http://aka.ms/ros/mrtk_native). Windows is required for Hololens and Windows Mixed Reality development. MRTK for ROS2 development will not be supported on other platforms.
 
 ### Prerequsitites
-* [Unity 2020.3 or later](https://unity.com/)
+* [Unity 2020.4 or later](https://unity.com/)
 * [Microsoft Mixed Reality Toolkit](https://docs.microsoft.com/en-us/windows/mixed-reality/mrtk-unity/?view=mrtkunity-2021-05)
 * [Nuget for Unity 3.02 or later](https://github.com/GlitchEnzo/NuGetForUnity/releases)
 * [Microsoft Mixed Reality QR Nuget](https://nuget.org/Packages/Microsoft.MixedReality.QR)
 * Download the Unity release for the ROS2 native from [http://aka.ms/ros/mrtk_native](http://aka.ms/ros/mrtk_native)
 * Download the Unity release for the Mixed Reality Toolit for ROS2 from [http://aka.ms/ros/mrtk](http://aka.ms/ros/mrtk)
+* Long Pathes enabled on Windows. Run this command from an administrative command prompt
+  `reg add HKLM\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled /t REG_DWORD /d 1 /f'`  
 
 ### Create your application
 
